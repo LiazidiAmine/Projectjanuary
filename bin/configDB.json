@@ -1,0 +1,5 @@
+{
+	"url" : "jdbc:sqlite:thaw.db",
+	"driver_class" : "org.sqlite.JDBC",
+	"max_pool_size" : 30
+}

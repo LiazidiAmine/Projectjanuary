@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Thaw</title>
+
+		<!-- CSS -->
+		<link rel="stylesheet" type="text/css" href="main.css">
+		<!-- CSS -->
+		
+		<!-- JQuery -->
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+		<!-- JQuery -->
+
+		<!-- bootstrap -->
+		<!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+		<!-- Optional theme -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
+		<!-- Latest compiled and minified JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+		<!-- bootstrap -->
+		
+		<!-- javascript -->
+		<script type="text/javascript" src="javascript.js" ></script>
+		<!-- javascript -->
+
+	</head>
+	<body>
+		<!-- wrapper -->
+		<div class="flexbox-parent wrapper">
+			
+			<!-- header -->
+			<div class="flexbox-item header">
+				<header>
+				   <h1>Thaw</h1>
+				</header>
+			</div>
+			<!-- header -->
+			
+			<!-- content -->
+			<div class="flexbox-item fill-area content flexbox-item-grow">	 
+				
+				<!-- chatbox container -->
+				<div class="fill-area-content flexbox-item-grow chatbox">
+
+					<!-- navbar -->
+					<div id="mySidenav" class="sidenav">
+					  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+					  <a href="#">New channel</a>
+					  <a href="#">Channel 1</a>
+					  <a href="#">Channel 2</a>
+					  <a href="#">Channel 3</a>
+					</div>
+					<!-- navbar -->
+					
+					<!-- chatbox -->
+					<div class="chat-box-div">
+	                    <div class="chat-box-head">
+		                    <span id="nav-button" onclick="openNav()">&#9776; open</span>
+		                    Channel 1
+	                    </div>
+	                    <div class="panel-body chat-box-main">
+	                        <div class="chat-box-left">
+	                            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+	                           Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+	                        </div>
+	                        <div class="chat-box-name-left">
+	                            -  Amine Liazidi
+	                        </div>
+	                        <hr class="hr-clas" />
+	                    </div>
+	                    <div class="chat-box-footer">
+	                        <div class="input-group">
+	                            <input type="text" class="form-control" id="text" placeholder="Enter Text Here...">
+	                            <span class="input-group-btn">
+	                                <button class="btn btn-info" type="button" onclick=sendMessage($("#text").val())>SEND</button>
+	                            </span>
+	                        </div>
+	                    </div>
+
+	                </div>
+	                <!-- chatbox -->
+				</div>
+				<!-- chatbox container-->
+			</div>
+			<!-- content -->
+			
+			<!-- footer -->
+			<div class="flexbox-item footer">Copyright © Liazidi Amine</div>
+			<!-- footer -->
+
+		</div>
+		<!-- wrapper -->
+
+	</body>
+</html>

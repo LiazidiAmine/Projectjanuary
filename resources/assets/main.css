@@ -1,0 +1,201 @@
+*, *:before, *:after
+{
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.flexbox-parent {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    
+    justify-content: flex-start; /* align items in Main Axis */
+    align-items: stretch; /* align items in Cross Axis */
+    align-content: stretch; /* Extra space in Cross Axis */
+}
+
+.flexbox-item
+{
+    padding: 8px;
+}
+
+.flexbox-item-grow
+{
+    flex: 1; /* same as flex: 1 1 auto; */
+}
+
+.fill-area
+{
+    display: flex;
+    flex-direction: row;
+    
+    justify-content: flex-start; /* align items in Main Axis */
+    align-items: stretch; /* align items in Cross Axis */
+    align-content: stretch; /* Extra space in Cross Axis */
+    
+}
+
+.fill-area-content
+{
+    /* Needed for when the area gets squished too far and there is content that can't be displayed */
+    overflow: auto;
+}
+
+.wrapper {
+    min-height: 100%;
+    position: relative;
+    width: 100%;
+    border: 1px solid gray;
+}
+
+.header{
+    padding: 5px;
+    color: white;
+    background-color: #111;
+    clear: left;
+    text-align: center;
+} 
+
+
+.content > article {
+    margin-left: 170px;
+    border-left: 1px solid gray;
+    padding: 1em;
+    overflow: hidden;
+}
+
+.footer {
+    background:#111;
+    color : white;
+    width:100%;
+    bottom:0;
+    left:0;
+    text-align: center;
+    z-index: 2;
+}
+
+/***********************************************************************/
+/**************************CHATBOX**************************************/
+
+.chat-box-div {
+    border-bottom: 2px solid #A12EB3;
+    height: 100%;
+    overflow: auto;
+}
+
+.chat-box-head {
+    padding: 10px 15px;
+    border-bottom: 2px solid #A12EB3;
+    background-color: #B25AE5;
+    color: #fff;
+    text-align: center;
+    height: 8%;
+}
+
+.chat-box-main {
+    max-height: 500px;
+    overflow: auto;
+    height: 82%;
+}
+
+.chat-box-left {
+    width: 100%;
+    height: auto;
+    padding: 8px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    position: relative;
+    border: 1px solid #C5C5C5;
+    font-size: 12px;
+}
+
+.chat-box-left:after {
+    top: 100%;
+    left: 10%;
+    border: solid transparent;
+    content: " ";
+    position: absolute;
+    border-top-color: #C5C5C5;
+    border-width: 15px;
+    margin-left: -15px;
+}
+
+.chat-box-name-left {
+    margin-top: 15px;
+    text-align: left;
+    color: #049E64;
+}
+
+.hr-clas {
+    border-top: 1px solid #A12EB3;
+}
+
+.input-group .form-control {
+    position: relative;
+    z-index: 0 !important;
+    float: left;
+    width: 100%;
+    margin-bottom: 0;
+    height: 10%;
+}
+/***********************************************************************/
+/**************************SIDEBAR**************************************/
+.sidenav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    background-color: #818181;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+}
+
+.sidenav a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #111;
+    display: block;
+    transition: 0.3s
+}
+
+.sidenav a:hover, .offcanvas a:focus{
+    color: #f1f1f1;
+}
+
+.sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
+}
+
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+
+#nav-button {
+    float: left;
+    cursor: pointer;
+}
+
+
+
+
