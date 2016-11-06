@@ -8,6 +8,8 @@
 		<!-- CSS -->
 		
 		<!-- JQuery -->
+
+		<script src="https://code.jquery.com/jquery-1.11.2.min.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
 		<!-- JQuery -->
 
@@ -22,6 +24,26 @@
 		
 		<!-- javascript -->
 		<script type="text/javascript" src="javascript.js" ></script>
+  		<script src="//cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"></script>
+  		<script src="vertx-eventbus.js"></script>
+  		<script>
+			  var eb = new EventBus("/eventbus/");
+			  eb.onopen = function () {
+			    eb.registerHandler("chat.to.client", function (err, msg) {
+			      $('#chat').append(msg.body + "\n");
+			    });
+			  };
+
+			  function send(event) {
+			    if (event.keyCode == 13 || event.which == 13) {
+			      var message = $('#input').val();
+			      if (message.length > 0) {
+			        eb.publish("chat.to.server", message);
+			        $('#input').val("");
+			      }
+			    }
+			  }
+  		</script>
 		<!-- javascript -->
 
 	</head>
@@ -60,20 +82,14 @@
 		                    Channel 1
 	                    </div>
 	                    <div class="panel-body chat-box-main">
-	                        <div class="chat-box-left">
-								<textarea id="feed" rows="4" cols="30" readonly>
-	                            </textarea>
-	                        </div>
-	                        <div class="chat-box-name-left">
-	                            -  Amine Liazidi
-	                        </div>
+
 	                        <hr class="hr-clas" />
 	                    </div>
 	                    <div class="chat-box-footer">
 	                        <div class="input-group">
-	                            <input type="text" class="form-control" id="message_value" placeholder="Enter Text Here...">
+	                            <input id="input" type="text" placeholder="Enter Text Here...">
 	                            <span class="input-group-btn">
-	                                <button class="btn btn-info" type="button" onclick="bid();">SEND</button>
+	                                <button class="btn btn-info" type="button" onclick="send(event)">SEND</button>
 	                            </span>
 	                        </div>
 	                    </div>
