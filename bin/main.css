@@ -159,7 +159,6 @@ body {
     position: fixed;
     z-index: 1;
     left: 0;
-    background-color: #818181;
     overflow-x: hidden;
     transition: 0.5s;
     padding-top: 60px;
@@ -167,23 +166,23 @@ body {
 
 .sidenav a {
     padding: 8px 8px 8px 32px;
-    text-decoration: none;
-    font-size: 25px;
-    color: #111;
+    font-size: 15px;
     display: block;
     transition: 0.3s
 }
 
 .sidenav a:hover, .offcanvas a:focus{
-    color: #f1f1f1;
+
 }
 
 .sidenav .closebtn {
-    position: absolute;
-    top: 0;
-    right: 25px;
-    font-size: 36px;
-    margin-left: 50px;
+
+    font-size: 15px;
+    cursor : pointer;
+}
+
+.sidenav .cha-list-title {
+    cursor: default !important;
 }
 
 @media screen and (max-height: 450px) {
@@ -191,9 +190,27 @@ body {
   .sidenav a {font-size: 18px;}
 }
 
-#nav-button {
-    float: left;
-    cursor: pointer;
+.nav-button {
+    float: left !important;
+}
+
+.navbar-header {
+  float: none;
+}
+.navbar-toggle {
+  display: block;
+}
+.navbar-collapse.collapse {
+  display: none!important;
+}
+.navbar-nav {
+  float: none!important;
+}
+.navbar-nav>li {
+  float: none;
+}
+.navbar-collapse.collapse.in{
+  display:block !important;
 }
 
 

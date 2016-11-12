@@ -23,8 +23,5 @@ function deleteCh() {
 	});
 }
 
-function addCh() {
-
-}
 
 

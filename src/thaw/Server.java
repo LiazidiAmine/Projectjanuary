@@ -1,12 +1,17 @@
 package thaw;
 
 import static java.util.Objects.requireNonNull;
+
+import java.io.IOException;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
+import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -18,14 +23,19 @@ import io.vertx.rxjava.core.Future;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Date;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 public class Server extends AbstractVerticle {
 	private Connection connection = null;
+	ObjectMapper mapper = new ObjectMapper();
 
   @Override
   public void start() throws Exception {
@@ -43,15 +53,38 @@ public class Server extends AbstractVerticle {
 
     router.route("/eventbus/*").handler(ebHandler);
     router.post("/login").handler(this::login);
-    router.post("/deleteCh").handler(this::deleteChannel);
-    router.post("/addCh").handler(arg0 -> {
+    router.post("/deleteCh").handler(arg0 -> {
+		try {
+			deleteChannel(arg0);
+		} catch (SQLException e3) {
+			// TODO Auto-generated catch block
+			e3.printStackTrace();
+		}
+	});
+    router.get("/channels").handler(arg0 -> {
+		try {
+			getChannels(arg0);
+		} catch (SQLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+	});
+    router.get("/messages/:channel").handler(arg0 -> {
+		try {
+			getMessages(arg0);
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+	});
+   /* router.post("/addCh").handler(arg0 -> {
 		try {
 			addChannel(arg0);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	});
+	});*/
 
     // Create a router endpoint for the static content.
     router.route("/*").handler(StaticHandler.create("webroot"));
@@ -63,11 +96,25 @@ public class Server extends AbstractVerticle {
 
     // Register to listen for messages coming IN to the server
     eb.consumer("chat.to.server").handler(message -> {
+      Message obj = null;
       // Create a timestamp string
-      String timestamp = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.MEDIUM).format(Date.from(Instant.now()));
-      System.out.println(message.body());
+      SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-mm-dd");
+      String date = dt1.format(new Date());
+      try {
+		obj = mapper.readValue(message.body().toString(), Message.class);
+		obj.setDate(date);//TODO dateformat
+		obj.setUsername("Amine");
+		System.out.println(obj.toJson() + "Sended");
+		postMsg(obj);
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
       // Send the message back out to all clients with the timestamp prepended.
-      eb.publish("chat.to.client", timestamp + ": " + message.body());
+      eb.publish("chat.to.client", obj.toJson());
     });
 
   }
@@ -85,15 +132,18 @@ public class Server extends AbstractVerticle {
     response.putHeader("content-type", "application/json").end();
   }
   
-  private void deleteChannel(RoutingContext routingContext) {
+  private void deleteChannel(RoutingContext routingContext) throws SQLException {
     HttpServerResponse response = routingContext.response();
     HttpServerRequest request = routingContext.request();
     String title = requireNonNull(request.getParam("title"));
     System.out.println(title);
+    String query = "drop table if exists "+title+";";
     if (title.isEmpty()) {  
         response.setStatusCode(404).end();
         return;
-    } 
+    } else {
+    	setQueryUpdate(query);
+    }
     routingContext.response()
        .putHeader("content-type", "application/json")
        .end();
@@ -108,42 +158,75 @@ public class Server extends AbstractVerticle {
         response.setStatusCode(404).end();
         return;
     } else {
-	    String query = "CREATE TABLE IF NOT EXISTS Channel" + title + "("
-	    				+"_id INTEGER PRIMARY KEY, "
-	    				+"Title VARCHAR(20),"
+	    String query = "CREATE TABLE IF NOT EXISTS Chan_" + title + "("
+	    				+ "_id INTEGER PRIMARY KEY, "
+	    				+ "Content VARCHAR(20),"
 						+ "Username VARCHAR(20), "
-						+ "Timestamp INTEGER);";
-	    String insert = "INSERT INTO Channel" + title + " ("
-	    		+ "Title, Username, Timestamp) "
-	    		+ "VALUES ("+title+", Amine,"+Date.from(Instant.now())+");";
+						+ "Time Date);";
 	    setQueryUpdate(query);
-	    setQueryUpdate(insert);
     }
     routingContext.response()
        .putHeader("content-type", "application/json")
        .end();  
   }
   
-  private void getMessages(RoutingContext routingContext) throws SQLException {
-	  HttpServerResponse response = routingContext.response();
-	  HttpServerRequest request = routingContext.request();
-	  String title = requireNonNull(request.getParam("ch-title"));
-	  System.out.println("get message from "+title);
-	  
+  private void postMsg(Message msg) throws SQLException{
+	  if(msg != null && !msg.getContent().isEmpty()){
+		  String query_insert = "INSERT INTO "+msg.getChannel()+"("
+		  		+ "Content, Username, Time) VALUES ("
+		  		+"'"+ msg.getContent() +"'"+ ", " +"'"+msg.getUsername()+"'"+", "+"'"+msg.getDate()+"'"+");";
+		  System.out.println(query_insert);
+		  setQueryUpdate(query_insert);
+	  }
   }
   
-  private void saveMessage(String msg, String channel, String timestamp, String user){
-	  
+  private void getMessages(RoutingContext routingContext) throws SQLException {
+	  String channel = routingContext.request().getParam("channel");
+	  String query =  "SELECT Content, Time, Username FROM "+channel;
+	  System.out.println(channel);
+	  System.out.println(execQuery(query).toString());
+	  routingContext.response()
+	      .putHeader("content-type", "application/json; charset=utf-8")
+	      .end(execQuery(query).toString());
+  }
+
+  private void getChannels(RoutingContext routingContext) throws SQLException {
+	  String query = "select name from sqlite_master where type=\"table\" and name LIKE \"Chan%\";";
+	  routingContext.response()
+	  	.putHeader("content-type", "application/json; charset=utf-8")
+	  	.end(execQuery(query).toString());
   }
   
   private void setQueryUpdate(String query) throws SQLException {
 	  // create database connection
-	  try(Connection connection = DriverManager.getConnection("jdbc:sqlite:thaw.db")){
+	  try(Connection connection = DriverManager.getConnection("jdbc:sqlite:db.db")){
 		  Statement statement = connection.createStatement();
 		  statement.setQueryTimeout(30);
 		  statement.executeUpdate(query);
+		  statement.close();
 	  }
   }
+  
+  private JsonArray execQuery(String query) throws SQLException {
+	  // create database connection
+	  try(Connection connection = DriverManager.getConnection("jdbc:sqlite:db.db")){
+		  Statement statement = connection.createStatement();
+		  statement.setQueryTimeout(30);
+		  ResultSet rs = statement.executeQuery(query);
+		  JsonArray jsonArray = new JsonArray();
+		  while(rs.next()){
+			  int rows = rs.getMetaData().getColumnCount();
+			  JsonObject obj = new JsonObject();
+			  for (int i = 0; i < rows; i++){
+				  obj.put(rs.getMetaData().getColumnLabel(i+1).toLowerCase(), rs.getObject(i+1));
+			  }
+			  jsonArray.add(obj);
+		  }
+		  statement.close();
+		  return jsonArray;
+	  }
+  }
+  
   
 	@Override
 	public void stop() throws Exception {

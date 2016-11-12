@@ -4,56 +4,75 @@ import io.vertx.core.json.JsonObject;
 
 public class Message {
 	
-	private final int id;
-	private final User user;
-	private final String content;
-	private final long timestamp;
-	private final Channel channel;
+	private String content;
+	private String channel;
+	private String date;
+	private String username;
 	
-	public Message(int id, User user, String content, long timestamp, Channel channel){
-		this.id = id;
-		this.user = user;
+	public Message(String content, String channel, String timestamp, String username){
 		this.content = content;
-		this.timestamp = timestamp;
 		this.channel = channel;
+		this.date = timestamp;
+		this.username = username;
 	}
 	
-	public Message(JsonObject json){
-		this.id = json.getInteger("id");
-		this.user = new User(json.getJsonObject("user"));
-		this.content = json.getString("content");
-		this.timestamp = json.getLong("timestamp");
-		this.channel = new Channel(json.getJsonObject("channel"));
-	}
-	
-	public int getId() {
-		return id;
-	}
-
-	public User getUser() {
-		return user;
+	public Message(){
+		
 	}
 
 	public String getContent() {
 		return content;
 	}
 
-	public long getTimestamp() {
-		return timestamp;
-	}
 	
-	public Channel getChannel() {
+	public String getChannel() {
 		return channel;
 	}
 	
+	
+	
+	public String getDate() {
+		return date;
+	}
+
+	public void setDate(String date) {
+		this.date = date;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
+		this.username = username;
+	}
+
+	public void setContent(String content) {
+		this.content = content;
+	}
+
+	public void setChannel(String channel) {
+		this.channel = channel;
+	}
+
 	public JsonObject toJson(){
 		JsonObject json = new JsonObject()
-				.put("id", id)
-				.put("user", user.toJson())
+				.put("username", username)
+				.put("date", date)
 				.put("content", content)
-				.put("timestamp", timestamp)
-				.put("channel", channel.toJson());
+				.put("channel", channel);
 		return json;
 	}
+	
+  @Override
+  public String toString() {
+    final StringBuffer sb = new StringBuffer("Message{");
+    sb.append(" date : '").append(date).append('\'');
+    sb.append(", username : '").append(username).append('\'');
+    sb.append(", content : '").append(content).append('\'');
+    sb.append(", channel : ").append(channel);
+    sb.append('}');
+    return sb.toString();
+  }
 
 }

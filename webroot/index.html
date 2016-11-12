@@ -32,10 +32,10 @@
         eb.registerHandler("chat.to.client", function (err, msg) {
           var div = document.getElementById('chat');
           var msgdiv = '<div class="chat-box-left">'+
-                msg.body +
+                msg.body.date+' : ' + msg.body.content +
                 '</div>'+
                 '<div class="chat-box-name-left">'+
-                '-  Amine Liazidi'+
+                '- '+msg.body.username+
                 '</div>'+
                 '<hr class="hr-clas" />';
 
@@ -48,21 +48,55 @@
 
       function send(event) {
         if (event.keyCode == 13 || event.which == 13) {
-          var content = {
-            message : document.getElementById('input').value,
+          var message = {
+            content : document.getElementById('input').value,
             channel : document.getElementById('ch-title').text
           };
-          if (content.message.length > 0) {
-            eb.publish("chat.to.server", content);
+          if (message.content.length > 0) {
+            eb.publish("chat.to.server", JSON.stringify(message));
             document.getElementById('input').value = "";
           }
         }
+      }
+
+      function loadMsg(){
+        var div = document.getElementById('chat');
+        $.ajax({
+            url: "http://localhost:9997/messages/"+document.getElementById('ch-title').text,
+            type: 'GET',
+            dataType: 'json',
+            success: function(res) {
+                for (var i in res){
+                  var msgdiv = '<div class="chat-box-left">'+
+                    res[i].time+' : ' + res[i].content +
+                    '</div>'+
+                    '<div class="chat-box-name-left">'+
+                    '- '+res[i].username+
+                    '</div>'+
+                    '<hr class="hr-clas" />';
+                  div.innerHTML = div.innerHTML + msgdiv;
+                    }
+                div.scrollTop = div.scrollHeight;
+            }
+        });
+        loadChannels();
+      }
+
+      function loadChannels(){
+        $.ajax({
+          url: "http://localhost:9997/channels",
+          type: "GET",
+          dataType: "json",
+          success: function(res){
+            console.log(res);
+          }
+        });
       }
     </script>
 		<!-- javascript -->
 
 	</head>
-	<body>
+	<body onload="loadMsg()">
 		<!-- wrapper -->
 		<div class="flexbox-parent wrapper">
 			
@@ -81,7 +115,7 @@
 				<div class="fill-area-content flexbox-item-grow chatbox">
 
 					<!-- navbar left-->
-					<div id="mySidenav" class="list-group sidenav">
+					<div id="mySidenav" class="list-group sidenav" onload="loadChannels()">
 					  <a class="list-group-item cha-list-title disabled">Channel List 
               <span href="javascript:void(0)" class="closebtn badge" onclick="closeNav()">&times;</span>
               <span data-toggle="modal" href="#myModal" onclick="addCh()" class="closebtn badge">&#43;</span>
@@ -106,7 +140,7 @@
                     <span class="icon-bar"></span>
                   </button>
                   <button class="btn btn-danger btn-xs" onclick="deleteCh()">Delete</button>
-                  <a class="navbar-brand" id="ch-title" href="#">Channel title</a>
+                  <a class="navbar-brand" id="ch-title" href="#">Channel</a>
                 </div>
 
                 <!-- Collect the nav links, forms, and other content for toggling -->
