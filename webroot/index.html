@@ -70,13 +70,13 @@
                 div.innerHTML = "";
               } else {
                 for (var i in res){
-                  var msgdiv = '<div class="chat-box-left">'+
-                    res[i].time+' : ' + res[i].content +
-                    '</div>'+
-                    '<div class="chat-box-name-left">'+
-                    '- '+res[i].username+
-                    '</div>'+
-                    '<hr class="hr-clas" />';
+                  var msgdiv ='<div class="message"> <div class="chat-box-left">'+
+                                    res[i].time+' : ' + res[i].content +
+                                  '</div>'+
+                                  '<div class="chat-box-name-left">'+
+                                    '- '+res[i].username+
+                                  '</div>'+
+                                  '<hr class="hr-clas" /> </div>';
                     div.innerHTML = div.innerHTML + msgdiv;
                 }
                 div.scrollTop = div.scrollHeight;
@@ -87,6 +87,7 @@
 
       function loadChannel(title){
         chat_title = document.getElementById("ch-title");
+        document.getElementById('chat').innerHTML = "";
         chat_title.innerHTML = title.id;
         loadMsg(title.id);
       }
@@ -126,41 +127,45 @@
           <!-- chatbox-message container -->	
 					<div class="chat-box-div">
             <!--chatbox header -->
-            <nav class="navbar navbar-default" role="navigation">
-              <div class="container">
-                <!-- Brand and toggle get grouped for better mobile display -->
-                <div class="navbar-header">
-                  <button id="nav-button" onclick="openNav()">&#9776;</button>
-                  <button type="button" class="navbar-toggle" data-toggle="collapse">
-                    <span class="sr-only"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                  </button>
-                  <button class="btn btn-danger btn-xs" onclick="deleteCh()">Delete</button>
-                  <a class="navbar-brand" id="ch-title" href="#">Channel</a>
-                </div>
-
-                <!-- Collect the nav links, forms, and other content for toggling -->
-                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                  <div class="input-group">
-                    <input type="text" class="form-control pull-right" style="width: 300px; margin-right: 35px, border: 1px solid black; background-color: #e5e5e5;" placeholder="Search">
-                    <span class="input-group-btn">
-                      <button type="reset" class="btn btn-default">
-                        <span class="glyphicon glyphicon-remove">
-                          <span class="sr-only">Close</span>
-                        </span>
+            <nav class="navbar navbar-inverse" id="top-menu" role="navigation">
+              <div class="container-fluid">
+                  <!-- Brand and toggle get grouped for better mobile display -->
+                  <div class="navbar-header">
+                      <button type="button" class="navbar-toggle" data-target="#navbarCollapse" data-toggle="collapse">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
                       </button>
-                      <button type="submit" class="btn btn-default">
-                        <span class="glyphicon glyphicon-search">
-                          <span class="sr-only">Search</span>
-                        </span>
-                      </button>
-                    </span>
                   </div>
-                </div><!-- /.navbar-collapse -->
-              </div><!-- /.container-fluid -->
-            </nav>
+                  <!-- Collapse navigation -->
+                  <div class="collapse navbar-collapse" id="navbarCollapse">
+                      <ul class="nav navbar-nav">
+                          <li>
+                            <a id="nav-button" onclick="openNav()">&#9776;</a>
+                          </li>
+                          <li class="active">
+                            <a><span id="ch-title">Title</span>
+                            <button class="btn btn-danger btn-xs" onclick="deleteCh()" id="btn-delete">x</button>
+                            </a>
+                          </li>
+                      </ul>
+                      <!-- Search box -->
+                      <div class="navbar-form navbar-right">
+                          <div class="input-group">
+                              <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
+                              <div class="input-group-btn">
+                                  <button class="btn btn-info" type="button" id="search"> <i class="glyphicon glyphicon-search"></i>
+
+                                  </button>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
+              </div>
+              <!-- End container-fluid -->
+          </nav>
+          <!-- End navbar-inverse -->
             <!--chatbox header -->                    
             <!-- chatbox -->
             <div id="chat" class="panel-body chat-box-main">
@@ -209,5 +214,12 @@
 
 		</div>
 		<!-- wrapper -->
+    <script>
+      $('#search').click(function(){
+        $('.message').hide();
+        var txt = $('#srch-term').val();
+        $('#chat :contains("'+txt+'")').show();
+      });
+    </script>
 	</body>
 </html>

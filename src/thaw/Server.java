@@ -176,6 +176,7 @@ public class Server extends AbstractVerticle {
   
   private void postMsg(Message msg) throws SQLException{
 	  if(msg != null && !msg.getContent().isEmpty()){
+		  System.out.println(msg.getChannel());
 		  String query_insert = "INSERT INTO "+msg.getChannel()+"("
 		  		+ "Content, Username, Time) VALUES ("
 		  		+"'"+ msg.getContent() +"'"+ ", " +"'"+msg.getUsername()+"'"+", "+"'"+msg.getDate()+"'"+");";
