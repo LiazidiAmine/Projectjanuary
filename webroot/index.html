@@ -59,13 +59,16 @@
         }
       }
 
-      function loadMsg(){
+      function loadMsg(title){
         var div = document.getElementById('chat');
         $.ajax({
-            url: "http://localhost:9997/messages/"+document.getElementById('ch-title').text,
+            url: "http://localhost:9997/messages/"+title,
             type: 'GET',
             dataType: 'json',
             success: function(res) {
+              if(res.length == 0){
+                div.innerHTML = "";
+              } else {
                 for (var i in res){
                   var msgdiv = '<div class="chat-box-left">'+
                     res[i].time+' : ' + res[i].content +
@@ -74,29 +77,24 @@
                     '- '+res[i].username+
                     '</div>'+
                     '<hr class="hr-clas" />';
-                  div.innerHTML = div.innerHTML + msgdiv;
-                    }
+                    div.innerHTML = div.innerHTML + msgdiv;
+                }
                 div.scrollTop = div.scrollHeight;
+              }
             }
         });
-        loadChannels();
       }
 
-      function loadChannels(){
-        $.ajax({
-          url: "http://localhost:9997/channels",
-          type: "GET",
-          dataType: "json",
-          success: function(res){
-            console.log(res);
-          }
-        });
+      function loadChannel(title){
+        chat_title = document.getElementById("ch-title");
+        chat_title.innerHTML = title.id;
+        loadMsg(title.id);
       }
     </script>
 		<!-- javascript -->
 
 	</head>
-	<body onload="loadMsg()">
+	<body>
 		<!-- wrapper -->
 		<div class="flexbox-parent wrapper">
 			
@@ -115,14 +113,14 @@
 				<div class="fill-area-content flexbox-item-grow chatbox">
 
 					<!-- navbar left-->
-					<div id="mySidenav" class="list-group sidenav" onload="loadChannels()">
+					<div id="mySidenav" class="list-group sidenav">
 					  <a class="list-group-item cha-list-title disabled">Channel List 
               <span href="javascript:void(0)" class="closebtn badge" onclick="closeNav()">&times;</span>
               <span data-toggle="modal" href="#myModal" onclick="addCh()" class="closebtn badge">&#43;</span>
             </a>
-            <a href="#" class="list-group-item active">Channel 1 <span class="badge">12</span></a>
-            <a href="#" class="list-group-item">Channel 2 <span class="badge">1</span></a>
-            <a href="#" class="list-group-item">Channel 3 <span class="badge">2</span></a>
+            <div id="channels-list">
+              
+            </div>
 					</div>
 					<!-- navbar left-->
           <!-- chatbox-message container -->	
@@ -145,23 +143,21 @@
 
                 <!-- Collect the nav links, forms, and other content for toggling -->
                 <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-                  <form class="navbar-form" role="search">
-                    <div class="input-group">
-                      <input type="text" class="form-control pull-right" style="width: 300px; margin-right: 35px, border: 1px solid black; background-color: #e5e5e5;" placeholder="Search">
-                      <span class="input-group-btn">
-                        <button type="reset" class="btn btn-default">
-                          <span class="glyphicon glyphicon-remove">
-                            <span class="sr-only">Close</span>
-                          </span>
-                        </button>
-                        <button type="submit" class="btn btn-default">
-                          <span class="glyphicon glyphicon-search">
-                            <span class="sr-only">Search</span>
-                          </span>
-                        </button>
-                      </span>
-                    </div>
-                  </form>
+                  <div class="input-group">
+                    <input type="text" class="form-control pull-right" style="width: 300px; margin-right: 35px, border: 1px solid black; background-color: #e5e5e5;" placeholder="Search">
+                    <span class="input-group-btn">
+                      <button type="reset" class="btn btn-default">
+                        <span class="glyphicon glyphicon-remove">
+                          <span class="sr-only">Close</span>
+                        </span>
+                      </button>
+                      <button type="submit" class="btn btn-default">
+                        <span class="glyphicon glyphicon-search">
+                          <span class="sr-only">Search</span>
+                        </span>
+                      </button>
+                    </span>
+                  </div>
                 </div><!-- /.navbar-collapse -->
               </div><!-- /.container-fluid -->
             </nav>

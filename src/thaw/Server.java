@@ -15,11 +15,14 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
+import io.vertx.ext.web.handler.CookieHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.rxjava.core.Future;
+import io.vertx.rxjava.ext.web.handler.SessionHandler;
+import io.vertx.rxjava.ext.web.sstore.LocalSessionStore;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -40,7 +43,8 @@ public class Server extends AbstractVerticle {
   @Override
   public void start() throws Exception {
 
-    Router router = Router.router(vertx);    
+    Router router = Router.router(vertx);
+
     router.route("/*").handler(BodyHandler.create());
 
     // Allow events for the designated addresses in/out of the event bus bridge
@@ -77,14 +81,14 @@ public class Server extends AbstractVerticle {
 			e1.printStackTrace();
 		}
 	});
-   /* router.post("/addCh").handler(arg0 -> {
+   router.post("/addCh").handler(arg0 -> {
 		try {
 			addChannel(arg0);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	});*/
+	});
 
     // Create a router endpoint for the static content.
     router.route("/*").handler(StaticHandler.create("webroot"));

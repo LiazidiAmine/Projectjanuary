@@ -52,12 +52,12 @@ public class User {
 		return json;
 	}
 	
-	public void sendMessage(Channel channel, Message message) {
+	/*public void sendMessage(Channel channel, Message message) {
 		channel.getMessages().put(message.getId(), message);
 	}
 	
 	public void removeMessage(Channel channel, Message message) {
 		channel.getMessages().remove(message.getId());
-	}
+	}*/
 
 }
