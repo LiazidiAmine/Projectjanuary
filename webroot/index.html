@@ -1,225 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<title>Thaw</title>
+<head>
+    <meta charset="utf-8">
+    <!--  This file has been downloaded from bootdey.com    @bootdey on twitter -->
+    <!--  All snippets are MIT license http://bootdey.com/license -->
+    <!-- 
+    	The codes are free, but we require linking to our web site.
+    	Why to Link?
+    	A true story: one girl didn't set a link and had no decent date for two years, and another guy set a link and got a top ranking in Google! 
+    	Where to Put the Link?
+    	home, about, credits... or in a good page that you want
+    	THANK YOU MY FRIEND!
+    -->
+    <title>chat room - Bootdey.com</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <script src="//cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"></script>
+    <script src="vertx-eventbus.js"></script>
+        <script src="functions.js"></script>
+    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
+    <link href="chat_room.css" rel="stylesheet" type="text/css">
+</head>
+<body onload="loadChannelList()">
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
+  <div class="container bootstrap snippet">
+    <div class="row">
+      <div class="search navbar-form navbar-right">
+          <div class="input-group">
+              <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
+              <div class="input-group-btn">
+                  <button class="btn btn-info" type="button" id="search"> <i class="glyphicon glyphicon-search"></i>
 
-		<!-- CSS -->
-		<link rel="stylesheet" type="text/css" href="main.css">
-    <link rel="stylesheet" type="text/css" href="modal.css">
-		<!-- CSS -->
-		
-		<!-- JQuery -->
-		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
-		<!-- JQuery -->
-
-		<!-- bootstrap -->
-		<!-- Latest compiled and minified CSS -->
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-		<!-- Optional theme -->
-		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css">
-		<!-- Latest compiled and minified JavaScript -->
-		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-		<!-- bootstrap -->
-		
-		<!-- javascript -->
-		<script type="text/javascript" src="javascript.js" ></script>
-  	<script src="//cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"></script>
-  	<script src="vertx-eventbus.js"></script>
-    <script>
-      var eb = new EventBus("/eventbus/");
-
-      eb.onopen = function () {
-        eb.registerHandler("chat.to.client", function (err, msg) {
-          var div = document.getElementById('chat');
-          var msgdiv = '<div class="chat-box-left">'+
-                msg.body.date+' : ' + msg.body.content +
-                '</div>'+
-                '<div class="chat-box-name-left">'+
-                '- '+msg.body.username+
-                '</div>'+
-                '<hr class="hr-clas" />';
-
-          div.innerHTML = div.innerHTML + msgdiv;
-          
-          var elem = document.getElementById('chat')
-            elem.scrollTop = elem.scrollHeight;
-          });
-      };
-
-      function send(event) {
-        if (event.keyCode == 13 || event.which == 13) {
-          var message = {
-            content : document.getElementById('input').value,
-            channel : document.getElementById('ch-title').text
-          };
-          if (message.content.length > 0) {
-            eb.publish("chat.to.server", JSON.stringify(message));
-            document.getElementById('input').value = "";
-          }
-        }
-      }
-
-      function loadMsg(title){
-        var div = document.getElementById('chat');
-        $.ajax({
-            url: "http://localhost:9997/messages/"+title,
-            type: 'GET',
-            dataType: 'json',
-            success: function(res) {
-              if(res.length == 0){
-                div.innerHTML = "";
-              } else {
-                for (var i in res){
-                  var msgdiv ='<div class="message"> <div class="chat-box-left">'+
-                                    res[i].time+' : ' + res[i].content +
-                                  '</div>'+
-                                  '<div class="chat-box-name-left">'+
-                                    '- '+res[i].username+
-                                  '</div>'+
-                                  '<hr class="hr-clas" /> </div>';
-                    div.innerHTML = div.innerHTML + msgdiv;
-                }
-                div.scrollTop = div.scrollHeight;
-              }
-            }
-        });
-      }
-
-      function loadChannel(title){
-        chat_title = document.getElementById("ch-title");
-        document.getElementById('chat').innerHTML = "";
-        chat_title.innerHTML = title.id;
-        loadMsg(title.id);
-      }
-    </script>
-		<!-- javascript -->
-
-	</head>
-	<body>
-		<!-- wrapper -->
-		<div class="flexbox-parent wrapper">
-			
-			<!-- header -->
-			<div class="flexbox-item header">
-				<header>
-				   <h1>Thaw</h1>
-				</header>
-			</div>
-			<!-- header -->
-			
-			<!-- content -->
-			<div class="flexbox-item fill-area content flexbox-item-grow">	 
-				
-				<!-- chatbox container -->
-				<div class="fill-area-content flexbox-item-grow chatbox">
-
-					<!-- navbar left-->
-					<div id="mySidenav" class="list-group sidenav">
-					  <a class="list-group-item cha-list-title disabled">Channel List 
-              <span href="javascript:void(0)" class="closebtn badge" onclick="closeNav()">&times;</span>
-              <span data-toggle="modal" href="#myModal" onclick="addCh()" class="closebtn badge">&#43;</span>
-            </a>
-            <div id="channels-list">
-              
-            </div>
-					</div>
-					<!-- navbar left-->
-          <!-- chatbox-message container -->	
-					<div class="chat-box-div">
-            <!--chatbox header -->
-            <nav class="navbar navbar-inverse" id="top-menu" role="navigation">
-              <div class="container-fluid">
-                  <!-- Brand and toggle get grouped for better mobile display -->
-                  <div class="navbar-header">
-                      <button type="button" class="navbar-toggle" data-target="#navbarCollapse" data-toggle="collapse">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                      </button>
-                  </div>
-                  <!-- Collapse navigation -->
-                  <div class="collapse navbar-collapse" id="navbarCollapse">
-                      <ul class="nav navbar-nav">
-                          <li>
-                            <a id="nav-button" onclick="openNav()">&#9776;</a>
-                          </li>
-                          <li class="active">
-                            <a><span id="ch-title">Title</span>
-                            <button class="btn btn-danger btn-xs" onclick="deleteCh()" id="btn-delete">x</button>
-                            </a>
-                          </li>
-                      </ul>
-                      <!-- Search box -->
-                      <div class="navbar-form navbar-right">
-                          <div class="input-group">
-                              <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
-                              <div class="input-group-btn">
-                                  <button class="btn btn-info" type="button" id="search"> <i class="glyphicon glyphicon-search"></i>
-
-                                  </button>
-                              </div>
-                          </div>
-                      </div>
-                  </div>
+                  </button>
               </div>
-              <!-- End container-fluid -->
-          </nav>
-          <!-- End navbar-inverse -->
-            <!--chatbox header -->                    
-            <!-- chatbox -->
-            <div id="chat" class="panel-body chat-box-main">
-
-                <hr class="hr-clas" />
-            </div>
-            <div class="chat-box-footer">
-                <div class="col-xs-12 input-group">
-                    <input id="input" class="form-control" type="text" onkeydown="send(event)" placeholder="Enter Text Here...">
-                    </input>
-                </div>
-            </div>
-				  </div>
-          <!-- modal new channel -->
-          <div id="myModal" class="modal fade">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                        <h4 class="modal-title">New channel</h4>
-                    </div>
-                    <form class="modal-body" method="POST" action="/addCh">
-                        <div class="form-group">
-                          <label for="ch-title">Name:</label>
-                          <input required type="text" class="form-control" id="ch-title" name="ch-title" placeholder="Channel title">
-                        </div>
-                        <p class="text-warning"><small>If you don't submit, your changes will be lost.</small></p>
-                        <button class="btn btn-primary" type="submit">Submit</button>
-                    </form>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    </div>
-                </div>
-            </div>
           </div>
-          <!-- modal new channel -->
-				  <!-- chatbox-message container-->
-			  </div>
-        <!-- chatbox container -->
-      </div>  
-			<!-- content -->
-			
-			<!-- footer -->
-			<div class="flexbox-item footer">Copyright © Liazidi Amine</div>
-			<!-- footer -->
+      </div>
+  		<div class="col-md-4 bg-white ">
+        <!-- =============================================================== -->
+        <!-- channel list -->
+        <a class="active bounceInDown">
+            <a href="#" id="channel-list-title" class="clearfix">
+              <div class="friend-name"> 
+                <strong>Channels<span data-toggle="modal" href="#myModal" class="btn-danger closebtn badge newchannel-btn">&#43;</span></strong>
+              </div>
+            </a>
+        </a>
+        <ul class="friend-list" id="channel-list">
+            
+        </ul>
+  		</div>
+          
+      <!--=========================================================-->
+      <!-- selected chat -->
+    	<div class="col-md-8 bg-white ">
+        <div class="chat-message">
+          <ul class="chat" id="chat-list">
+                                 
+          </ul>
+        </div>
+        <div class="chat-box bg-white">
+        	<div class="input-group">
+        		<input class="form-control border no-shadow no-rounded" placeholder="Type your message here" onkeydown="send(event)" type="text" id="input">
+      		  <span class="input-group-btn">
+      			 <button class="btn btn-success no-rounded" type="button" onclick="send(event)">Send</button>
+      		  </span>
+        	</div><!-- /input-group -->	
+        </div>            
+  	  </div>
 
-		</div>
-		<!-- wrapper -->
-    <script>
-      $('#search').click(function(){
-        $('.message').hide();
-        var txt = $('#srch-term').val();
-        $('#chat :contains("'+txt+'")').show();
-      });
-    </script>
-	</body>
+	  </div>
+  </div>
+
+<!-- modal new channel -->
+<div id="myModal" class="modal fade">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title">New channel</h4>
+          </div>
+          <form class="modal-body" method="POST" action="/addCh">
+              <div class="form-group">
+                <label for="ch-title">Name:</label>
+                <input required type="text" class="form-control" id="ch-title" name="ch-title" placeholder="Channel title">
+              </div>
+              <p class="text-warning"><small>If you don't submit, your changes will be lost.</small></p>
+              <button class="btn btn-primary" type="submit">Submit</button>
+          </form>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+  </div>
+</div>
+<!-- modal new channel -->
+
+<script src="http://netdna.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+  $('#search').click(function(){
+    $('.message').hide();
+    var txt = $('#srch-term').val();
+    $('#chat :contains("'+txt+'")').show();
+  });
+</script>
+</body>
 </html>

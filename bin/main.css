@@ -190,27 +190,24 @@ body {
   .sidenav a {font-size: 18px;}
 }
 
-.nav-button {
-    float: left !important;
-}
+/**************************** NavBar ***************************/
 
-.navbar-header {
-  float: none;
+.navbar {
+    margin: 15px;
+    font-family:'Raleway', sans-serif;
+    background:#444444;
 }
-.navbar-toggle {
-  display: block;
+.navbar-inverse .navbar-nav>.active>a {
+    background:#000000;
 }
-.navbar-collapse.collapse {
-  display: none!important;
+.navbar-inverse .navbar-nav > li > a {
+    color: #F2DEDE;
 }
-.navbar-nav {
-  float: none!important;
+#nav-button {
+  cursor : pointer;
 }
-.navbar-nav>li {
-  float: none;
-}
-.navbar-collapse.collapse.in{
-  display:block !important;
+#btn-delete {
+  margin-left: 15px;
 }
 
 
