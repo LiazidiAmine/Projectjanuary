@@ -5,8 +5,6 @@ import static java.util.Objects.requireNonNull;
 import java.io.IOException;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.AsyncResult;
-import io.vertx.core.Handler;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.http.HttpServerRequest;
 import io.vertx.core.http.HttpServerResponse;
@@ -15,23 +13,17 @@ import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
-import io.vertx.ext.web.handler.CookieHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
-import io.vertx.rxjava.core.Future;
-import io.vertx.rxjava.ext.web.handler.SessionHandler;
-import io.vertx.rxjava.ext.web.sstore.LocalSessionStore;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
 import java.util.Date;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -41,7 +33,7 @@ public class Server extends AbstractVerticle {
 	ObjectMapper mapper = new ObjectMapper();
 
   @Override
-  public void start() throws Exception {
+  public void start() throws Exception, SQLException {
 
     Router router = Router.router(vertx);
 
@@ -57,38 +49,10 @@ public class Server extends AbstractVerticle {
 
     router.route("/eventbus/*").handler(ebHandler);
     router.post("/login").handler(this::login);
-    router.post("/deleteCh").handler(arg0 -> {
-		try {
-			deleteChannel(arg0);
-		} catch (SQLException e3) {
-			// TODO Auto-generated catch block
-			e3.printStackTrace();
-		}
-	});
-    router.get("/channels").handler(arg0 -> {
-		try {
-			getChannels(arg0);
-		} catch (SQLException e2) {
-			// TODO Auto-generated catch block
-			e2.printStackTrace();
-		}
-	});
-    router.get("/messages/:channel").handler(arg0 -> {
-		try {
-			getMessages(arg0);
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-	});
-   router.post("/addCh").handler(arg0 -> {
-		try {
-			addChannel(arg0);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	});
+    router.post("/deleteCh").handler(this::deleteChannel);
+    router.get("/channels").handler(this::getChannels);
+    router.get("/messages/:channel").handler(this::getMessages);
+    router.post("/addCh").handler(this::addChannel);
 
     // Create a router endpoint for the static content.
     router.route("/*").handler(StaticHandler.create("webroot"));
@@ -108,12 +72,10 @@ public class Server extends AbstractVerticle {
 		obj = mapper.readValue(message.body().toString(), Message.class);
 		obj.setDate(date);//TODO dateformat
 		obj.setUsername("Amine");
+		
 		System.out.println(obj.toJson() + "Sended");
 		postMsg(obj);
 	} catch (IOException e) {
-		// TODO Auto-generated catch block
-		e.printStackTrace();
-	} catch (SQLException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
@@ -136,7 +98,7 @@ public class Server extends AbstractVerticle {
     response.putHeader("content-type", "application/json").end();
   }
   
-  private void deleteChannel(RoutingContext routingContext) throws SQLException {
+  private void deleteChannel(RoutingContext routingContext) {
     HttpServerResponse response = routingContext.response();
     HttpServerRequest request = routingContext.request();
     String title = requireNonNull(request.getParam("title"));
@@ -153,7 +115,7 @@ public class Server extends AbstractVerticle {
        .end();
   }
   
-  private void addChannel(RoutingContext routingContext) throws SQLException {  
+  private void addChannel(RoutingContext routingContext) {  
 	HttpServerResponse response = routingContext.response();
     HttpServerRequest request = routingContext.request();
     String title = requireNonNull(request.getParam("ch-title"));
@@ -174,7 +136,7 @@ public class Server extends AbstractVerticle {
        .end();  
   }
   
-  private void postMsg(Message msg) throws SQLException{
+  private void postMsg(Message msg) {
 	  if(msg != null && !msg.getContent().isEmpty()){
 		  System.out.println(msg.getChannel());
 		  String query_insert = "INSERT INTO "+msg.getChannel()+"("
@@ -185,34 +147,35 @@ public class Server extends AbstractVerticle {
 	  }
   }
   
-  private void getMessages(RoutingContext routingContext) throws SQLException {
+  private void getMessages(RoutingContext routingContext){
 	  String channel = routingContext.request().getParam("channel");
 	  String query =  "SELECT Content, Time, Username FROM "+channel;
-	  System.out.println(channel);
-	  System.out.println(execQuery(query).toString());
 	  routingContext.response()
 	      .putHeader("content-type", "application/json; charset=utf-8")
 	      .end(execQuery(query).toString());
   }
 
-  private void getChannels(RoutingContext routingContext) throws SQLException {
+  private void getChannels(RoutingContext routingContext) {
 	  String query = "select name from sqlite_master where type=\"table\" and name LIKE \"Chan%\";";
 	  routingContext.response()
 	  	.putHeader("content-type", "application/json; charset=utf-8")
 	  	.end(execQuery(query).toString());
   }
   
-  private void setQueryUpdate(String query) throws SQLException {
+  private void setQueryUpdate(String query) {
 	  // create database connection
 	  try(Connection connection = DriverManager.getConnection("jdbc:sqlite:db.db")){
 		  Statement statement = connection.createStatement();
 		  statement.setQueryTimeout(30);
 		  statement.executeUpdate(query);
 		  statement.close();
-	  }
+	  } catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
   }
   
-  private JsonArray execQuery(String query) throws SQLException {
+  private JsonArray execQuery(String query) {
 	  // create database connection
 	  try(Connection connection = DriverManager.getConnection("jdbc:sqlite:db.db")){
 		  Statement statement = connection.createStatement();
@@ -229,7 +192,11 @@ public class Server extends AbstractVerticle {
 		  }
 		  statement.close();
 		  return jsonArray;
-	  }
+	  } catch (SQLException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+		return new JsonArray();
+	}
   }
   
   

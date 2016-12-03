@@ -28,5 +28,13 @@
 	<classpathentry kind="lib" path="vertx/lib/vertx-reactive-streams-3.3.3.jar"/>
 	<classpathentry kind="lib" path="vertx/lib/vertx-rx-java-3.3.3.jar"/>
 	<classpathentry kind="lib" path="/home/amine/workspace/vertx-jdbc-client-3.3.3.jar"/>
+	<classpathentry kind="lib" path="/home/amine/Downloads/google-http-client-assembly-1.22.0-1.22.0.zip"/>
+	<classpathentry kind="lib" path="/home/amine/Downloads/httpclient-4.5.2.jar"/>
+	<classpathentry kind="lib" path="/home/amine/Downloads/github-api-1.80.jar"/>
+	<classpathentry kind="lib" path="/home/amine/Downloads/async-http-client-1.9.40.jar"/>
+	<classpathentry kind="lib" path="/home/amine/Downloads/async-http-client-2.0.24.jar"/>
+	<classpathentry kind="lib" path="/home/amine/Downloads/slf4j-1.7.21.zip"/>
+	<classpathentry kind="lib" path="/home/amine/Downloads/org.eclipse.egit.github.core-2.1.5.jar"/>
+	<classpathentry kind="lib" path="/home/amine/Downloads/gson-2.8.0.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

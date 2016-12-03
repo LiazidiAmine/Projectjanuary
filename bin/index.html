@@ -21,7 +21,7 @@
     <link href="http://netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
     <link href="chat_room.css" rel="stylesheet" type="text/css">
 </head>
-<body>
+<body onload="loadChannelList()">
 <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
   <div class="container bootstrap snippet">
     <div class="row">
@@ -38,14 +38,15 @@
   		<div class="col-md-4 bg-white ">
         <!-- =============================================================== -->
         <!-- channel list -->
+        <a class="active bounceInDown">
+            <a href="#" id="channel-list-title" class="clearfix">
+              <div class="friend-name"> 
+                <strong>Channels<span data-toggle="modal" href="#myModal" class="btn-danger closebtn badge newchannel-btn">&#43;</span></strong>
+              </div>
+            </a>
+        </a>
         <ul class="friend-list" id="channel-list">
-            <li class="active bounceInDown">
-              <a href="#" class="clearfix">
-                <div class="friend-name"> 
-                  <strong>Channels<span data-toggle="modal" href="#myModal" class="btn-danger closebtn badge newchannel-btn">&#43;</span></strong>
-                </div>
-              </a>
-            </li>
+            
         </ul>
   		</div>
           
@@ -59,9 +60,9 @@
         </div>
         <div class="chat-box bg-white">
         	<div class="input-group">
-        		<input class="form-control border no-shadow no-rounded" placeholder="Type your message here">
+        		<input class="form-control border no-shadow no-rounded" placeholder="Type your message here" onkeydown="send(event)" type="text" id="input">
       		  <span class="input-group-btn">
-      			 <button class="btn btn-success no-rounded" type="button">Send</button>
+      			 <button class="btn btn-success no-rounded" type="button" onclick="send(event)">Send</button>
       		  </span>
         	</div><!-- /input-group -->	
         </div>            
@@ -96,11 +97,11 @@
 
 <script src="http://netdna.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 <script type="text/javascript">
-	    $('#search').click(function(){
-        $('.message').hide();
-        var txt = $('#srch-term').val();
-        $('#chat :contains("'+txt+'")').show();
-      });
+  $('#search').click(function(){
+    $('.message').hide();
+    var txt = $('#srch-term').val();
+    $('#chat :contains("'+txt+'")').show();
+  });
 </script>
 </body>
 </html>
