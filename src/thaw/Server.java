@@ -130,6 +130,20 @@ public class Server extends AbstractVerticle {
 		} 
 		response.putHeader("content-type", "application/json").end();
 	}
+	
+	private void insertUser(User user) {
+		String create_table = "CREATE TABLE IF NOT EXISTS Users "
+				+ "( _id INTEGER PRIMARY KEY, "
+				+ "Username TEXT NOT NULL, "
+				+ "Email TEXT NOT NULL,"
+				+ "Password TEXT NOT NULL,"
+				+ "Time Date);";
+		String insert = "INSERT INTO Users (Username, Email, Time) VALUES ("
+				+ user.getUsername() + ", " + user.getEmail() + ", " 
+				+ user.getPassword() + ", " + user.getTime() +");";
+		setQueryUpdate(create_table);
+		setQueryUpdate(insert);
+	}
 
 	private void deleteChannel(RoutingContext routingContext) {
 		HttpServerResponse response = routingContext.response();

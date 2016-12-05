@@ -7,13 +7,15 @@ public class User {
 	private final int id;
 	private final String username;
 	private final String email;
-	private final long timestamp;
+	private final String password;
+	private final String timestamp;
 	private boolean authenticate;
 	
-	public User(int id, String username, String email, long timestamp, boolean authenticate) {
+	public User(int id, String username, String email, String password, String timestamp, boolean authenticate) {
 		this.id = id;
 		this.username = username;
 		this.email = email;
+		this.password = password;
 		this.timestamp = timestamp;
 		this.authenticate = authenticate;
 	}
@@ -22,7 +24,8 @@ public class User {
 		this.id = json.getInteger("id");
 		this.username = json.getString("username");
 		this.email = json.getString("email");
-		this.timestamp = json.getLong("timestamp");
+		this.password = json.getString("password");
+		this.timestamp = json.getString("timestamp");
 		this.authenticate = json.getBoolean("authenticate");
 	}
 
@@ -38,8 +41,16 @@ public class User {
 		return email;
 	}
 	
+	public String getPassword() {
+		return password;
+	}
+	
 	public boolean isAuthenticate() {
 		return authenticate;
+	}
+	
+	public String getTime(){
+		return timestamp;
 	}
 	
 	public JsonObject toJson(){
@@ -47,6 +58,7 @@ public class User {
 				.put("id", id)
 				.put("username", username)
 				.put("email", email)
+				.put("password", password)
 				.put("timestamp", timestamp)
 				.put("authenticate", authenticate);
 		return json;
