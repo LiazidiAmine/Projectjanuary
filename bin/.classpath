@@ -36,5 +36,7 @@
 	<classpathentry kind="lib" path="/home/amine/Downloads/slf4j-1.7.21.zip"/>
 	<classpathentry kind="lib" path="/home/amine/Downloads/org.eclipse.egit.github.core-2.1.5.jar"/>
 	<classpathentry kind="lib" path="/home/amine/Downloads/gson-2.8.0.jar"/>
+	<classpathentry kind="lib" path="/home/amine/Downloads/RomeLibraryExample/rome-1.0.jar"/>
+	<classpathentry kind="lib" path="/home/amine/Downloads/RomeLibraryExample/jdom-1.1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

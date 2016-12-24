@@ -23,10 +23,10 @@ eb.onopen = function () {
     
     addMessage(msg.body.content, "left", msg.body.username, msg.body.date);
     
-    var elem = document.getElementById('chat-list')
-      elem.scrollTop = elem.scrollHeight;
-    });
-};
+    $("#chat-list").scrollDown($("#chat-list").scrollDown() - 100);
+  });
+}
+
 
 function send(event) {
   var user = getCookie("user");

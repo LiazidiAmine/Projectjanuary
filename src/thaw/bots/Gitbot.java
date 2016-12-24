@@ -31,7 +31,8 @@ public class Gitbot implements Callable<JsonObject>{
 		}
 	}
 	
-	private JsonObject commitsRepo(){
+	@Override
+	public JsonObject call(){
 		synchronized(lock){
 			JsonObject json = new JsonObject();
 			final CommitService service = new CommitService();
@@ -56,9 +57,4 @@ public class Gitbot implements Callable<JsonObject>{
 		}
 	}
 
-	@Override
-	public JsonObject call() throws Exception {
-		
-		return commitsRepo();
-	}
 }

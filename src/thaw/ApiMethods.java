@@ -63,6 +63,7 @@ public class ApiMethods {
 		if (!title.isEmpty()) {
 			db.setQueryUpdate(query);
 			routingContext.response().putHeader("content-type", "application/json").end();
+			return;
 		} 
 		routingContext.response().end();
 	}
@@ -74,6 +75,7 @@ public class ApiMethods {
 		if (!title.isEmpty()) {
 			db.setQueryUpdate(query);
 			routingContext.response().putHeader("location", "http://localhost:9997/home.html").setStatusCode(302).end();
+			return;
 		}
 		routingContext.response().end();
 	}

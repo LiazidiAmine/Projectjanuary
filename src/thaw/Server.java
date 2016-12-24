@@ -110,8 +110,8 @@ public class Server extends AbstractVerticle {
 				json_response = botsHandler.botCall(msg.toJson().getString("content"));
 				Objects.requireNonNull(json_response);
 				msg_bot = Parser.parseBotMsg(json_response);
-				msg_bot.setChannel(msg.getChannel());
 				if (msg_bot != null) {
+					msg_bot.setChannel(msg.getChannel());
 					api.postMsg(msg_bot);
 					eb.publish("chat.to.client", msg_bot.toJson());
 				}

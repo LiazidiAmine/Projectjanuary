@@ -1,5 +1,6 @@
 package thaw.bots;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -12,13 +13,15 @@ import java.util.concurrent.Future;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.sun.syndication.io.FeedException;
+
 import io.vertx.core.json.JsonObject;
 
 public class BotsHandler {
 	
-	private static final String GIT_BOT = "git-bot";
-	private static final String RSS_BOT = "rss-bot";
-	private static final String GITHUB_BOT = "GITHUB_BOT";
+	public static final String GIT_BOT = "git-bot";
+	public static final String RSS_BOT = "rss-bot";
+	//private static final String GITHUB_BOT = "GITHUB_BOT";
 	private static Map<String,Function<String,JsonObject>> map = new HashMap<>();
 	private static BotsHandler instance;
 	
@@ -29,17 +32,21 @@ public class BotsHandler {
 	private void init(){
 		map.put(GIT_BOT, (line)->{
 			Objects.requireNonNull(line);
-			List<String> arguments = Arrays.asList(line.split(" "));
-			List<String> params = arguments.stream().skip(1).collect(Collectors.toList());
-			requireArgumentsGitHub(params);
+			List<String> params = Arrays.asList(line.split(" ")).stream().skip(1).collect(Collectors.toList());
+			requireArgsGitBot(params);
 			return gitBot(params.get(0), params.get(1));
+		});
+		map.put(RSS_BOT, (line)->{
+			Objects.requireNonNull(line);
+			List<String> params = Arrays.asList(line.split(" ")).stream().skip(1).collect(Collectors.toList());
+			requireArgsRssBot(params);
+			return rssBot(params.get(0));
 		});
 	}
 	
 	private static JsonObject gitBot(String user, String repository) {	
 		Objects.requireNonNull(user);
 		Objects.requireNonNull(repository);
-		
 		ExecutorService es = Executors.newSingleThreadExecutor();
 		Future<JsonObject> result = es.submit(new Gitbot(user, repository));
 		try {
@@ -50,8 +57,31 @@ public class BotsHandler {
 		return null;
 	}
 	
-	private static void requireArgumentsGitHub(List<String> list){
+	private static JsonObject rssBot(String url) {
+		Objects.requireNonNull(url);
+		ExecutorService es = Executors.newSingleThreadExecutor();
+		Future<JsonObject> result = null;
+		try {
+			result = es.submit(new RssBot(url));
+		} catch (IllegalArgumentException | IOException | FeedException e1) {
+			e1.printStackTrace();
+		}
+		try {
+			return result.get();
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	private static void requireArgsGitBot(List<String> list){
 		if(list.size() != 2 ){
+			throw new IllegalArgumentException("Invalid arguments");
+		}
+	}
+	
+	private static void requireArgsRssBot(List<String> list){
+		if(list.size() != 1 ){
 			throw new IllegalArgumentException("Invalid arguments");
 		}
 	}
