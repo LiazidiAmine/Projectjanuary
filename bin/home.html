@@ -83,7 +83,7 @@
           <form class="modal-body" method="POST" action="/addCh">
               <div class="form-group">
                 <label for="ch-title">Name:</label>
-                <input required type="text" class="form-control" id="ch-title" name="ch-title" placeholder="Channel title" pattern="[A-Za-z]{12}">
+                <input required type="text" class="form-control" id="ch-title" name="ch-title" placeholder="Channel title" pattern="[A-Za-z]{1,}" title="Must contain one or more characters">
               </div>
               <p class="text-warning"><small>If you don't submit, your changes will be lost.</small></p>
               <button class="btn btn-primary" type="submit">Submit</button>

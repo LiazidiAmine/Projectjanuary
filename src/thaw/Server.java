@@ -2,6 +2,7 @@ package thaw;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Cookie;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -12,6 +13,10 @@ import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.sstore.LocalSessionStore;
+import thaw.bots.BotsHandler;
+
+import java.util.Objects;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import Parser.*;
@@ -20,6 +25,7 @@ public class Server extends AbstractVerticle {
 	
 	private DataBase db = DataBase.getInstance();
 	private ApiMethods api = ApiMethods.getInstance(db);
+	private BotsHandler botsHandler = BotsHandler.getInstance();
 	ObjectMapper mapper = new ObjectMapper();
 
 	@Override
@@ -98,11 +104,17 @@ public class Server extends AbstractVerticle {
 			api.postMsg(msg);
 			eb.publish("chat.to.client", msg.toJson());
 
-			Message msg_bot = Parser.parseBotMsg(msg);
-			if (msg_bot != null) {
-				System.out.println("publish msg_bot");
-				api.postMsg(msg_bot);
-				eb.publish("chat.to.client", msg_bot.toJson());
+			Message msg_bot = null;
+			JsonObject json_response = null;
+			if(botsHandler.isBotCall(msg.getContent())){
+				json_response = botsHandler.botCall(msg.toJson().getString("content"));
+				Objects.requireNonNull(json_response);
+				msg_bot = Parser.parseBotMsg(json_response);
+				msg_bot.setChannel(msg.getChannel());
+				if (msg_bot != null) {
+					api.postMsg(msg_bot);
+					eb.publish("chat.to.client", msg_bot.toJson());
+				}
 			}
 		});
 
