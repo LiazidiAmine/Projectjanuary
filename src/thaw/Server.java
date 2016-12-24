@@ -39,6 +39,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Server extends AbstractVerticle {
+	
 	private Connection connection = null;
 	ObjectMapper mapper = new ObjectMapper();
 
@@ -122,53 +123,17 @@ public class Server extends AbstractVerticle {
 
 		// Register to listen for messages coming IN to the server
 		eb.consumer("chat.to.server").handler(message -> {
-			Message obj = null;
 			String str_msg = message.body().toString();
+			Message msg = Parser.Parser.strToMessage(str_msg);
+			System.out.println(msg.toJson() + " Sended");
+			postMsg(msg);
+			eb.publish("chat.to.client", msg.toJson());
 
-			// Create a timestamp string
-			SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-mm-dd");
-			String date = dt1.format(new Date());
-			try {
-				obj = mapper.readValue((str_msg), Message.class);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			obj.setDate(date);// TODO dateformat
-
-			System.out.println(obj.toJson() + " Sended");
-			// Send the message back out to all clients with the timestamp
-			// prepended.
-			postMsg(obj);
-			eb.publish("chat.to.client", obj.toJson());
-
-			if (Parser.Parser.isBot(obj.toJson().getString("content"))) {
-				Message msg_bot = null;
-				JsonObject json = null;
-				try {
-					json = Parser.Parser.parse(obj.toJson().getString("content"));
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				if (!json.equals(null)) {
-					JsonFactory factory = new JsonFactory();
-					JsonParser parser = null;
-					try {
-						parser = factory.createParser(json.toString());
-						msg_bot = mapper.readValue(parser, Message.class);
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					if (msg_bot != null) {
-						System.out.println("publish");
-						msg_bot.setDate(date);
-						msg_bot.setChannel(obj.toJson().getValue("channel").toString());
-						postMsg(msg_bot);
-						eb.publish("chat.to.client", msg_bot.toJson());
-					}
-				}
+			Message msg_bot = Parser.Parser.parseBotMsg(msg);
+			if (msg_bot != null) {
+				System.out.println("publish msg_bot");
+				postMsg(msg_bot);
+				eb.publish("chat.to.client", msg_bot.toJson());
 			}
 		});
 
