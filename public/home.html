@@ -34,6 +34,7 @@
                   </button>
               </div>
           </div>
+          <button type="button" class="btn btn-danger" onclick="logout()">Logout</button>
       </div>
   		<div class="col-md-4 bg-white ">
         <!-- =============================================================== -->
@@ -62,7 +63,7 @@
         	<div class="input-group">
         		<input class="form-control border no-shadow no-rounded" placeholder="Type your message here" onkeydown="send(event)" type="text" id="input">
       		  <span class="input-group-btn">
-      			 <button class="btn btn-success no-rounded" type="button" onclick="send(event)">Send</button>
+      			 <button class="btn btn-success no-rounded" type="button" onclick="sendInput()">Send</button>
       		  </span>
         	</div><!-- /input-group -->	
         </div>            
@@ -82,7 +83,7 @@
           <form class="modal-body" method="POST" action="/addCh">
               <div class="form-group">
                 <label for="ch-title">Name:</label>
-                <input required type="text" class="form-control" id="ch-title" name="ch-title" placeholder="Channel title">
+                <input required type="text" class="form-control" id="ch-title" name="ch-title" placeholder="Channel title" pattern="[A-Za-z]{1,}" title="Must contain one or more characters">
               </div>
               <p class="text-warning"><small>If you don't submit, your changes will be lost.</small></p>
               <button class="btn btn-primary" type="submit">Submit</button>
@@ -102,6 +103,12 @@
     var txt = $('#srch-term').val();
     $('#chat :contains("'+txt+'")').show();
   });
+  function sendInput(){
+    var e = new Event("keydown");
+    e.which = 13;
+    e.keyCode = 13;
+    send(e);
+  }
 </script>
 </body>
 </html>
