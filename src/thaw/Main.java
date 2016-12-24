@@ -1,6 +1,7 @@
 package thaw;
 
 import io.vertx.core.Vertx;
+import thaw.api.Server;
 
 public class Main {
 

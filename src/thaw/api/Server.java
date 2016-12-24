@@ -1,4 +1,4 @@
-package thaw;
+package thaw.api;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
@@ -14,12 +14,12 @@ import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.sstore.LocalSessionStore;
 import thaw.bots.BotsHandler;
+import thaw.chatroom.Message;
+import thaw.parser.*;
 
 import java.util.Objects;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import Parser.*;
 
 public class Server extends AbstractVerticle {
 	

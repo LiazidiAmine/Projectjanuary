@@ -1,4 +1,4 @@
-package thaw;
+package thaw.api;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

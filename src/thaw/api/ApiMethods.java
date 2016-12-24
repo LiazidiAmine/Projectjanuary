@@ -1,4 +1,4 @@
-package thaw;
+package thaw.api;
 
 import static java.util.Objects.requireNonNull;
 
@@ -7,6 +7,8 @@ import java.util.Objects;
 import io.vertx.core.json.JsonArray;
 import io.vertx.ext.web.Cookie;
 import io.vertx.ext.web.RoutingContext;
+import thaw.chatroom.Message;
+import thaw.chatroom.User;
 
 public class ApiMethods {
 	
@@ -50,12 +52,12 @@ public class ApiMethods {
 		final String query = "SELECT _id FROM Users WHERE Username = '" + username + "';";
 		return db.execQuery(query);
 	}
-	
+	/*
 	private boolean validUser(User user){
 		String query = "SELECT * FROM Users WHERE Username = '" + user.getUsername() +"';";
 		System.out.println(db.execQuery(query));//TODO
 		return db.execQuery(query).contains(user.getPassword());
-	}
+	}*/
 
 	public void deleteChannel(RoutingContext routingContext) {
 		final String title = requireNonNull(routingContext.request().getParam("title"));

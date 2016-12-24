@@ -1,4 +1,4 @@
-package thaw;
+package thaw.chatroom;
 
 import io.vertx.core.json.JsonObject;
 

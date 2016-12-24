@@ -1,4 +1,4 @@
-package Parser;
+package thaw.parser;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -10,7 +10,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import io.vertx.core.json.JsonObject;
-import thaw.Message;
+import thaw.chatroom.Message;
 
 public class Parser {
 

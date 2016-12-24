@@ -1,4 +1,4 @@
-package thaw;
+package thaw.chatroom;
 
 import java.util.HashMap;
 

@@ -1,4 +1,4 @@
-package thaw;
+package thaw.api;
 
 public class Routes {
 
