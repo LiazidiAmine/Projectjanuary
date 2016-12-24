@@ -6,6 +6,8 @@ public class User {
 	
 	private final String username;
 	private final String password;
+	public static final String CREATE_TABLE_USERS = "CREATE TABLE IF NOT EXISTS Users " + "( _id INTEGER PRIMARY KEY, "
+			+ "Username TEXT NOT NULL, " + "Password TEXT NOT NULL);";
 	
 	public User(String username, String password) {
 		this.username = username;

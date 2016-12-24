@@ -14,6 +14,8 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.sstore.LocalSessionStore;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import Parser.*;
+
 public class Server extends AbstractVerticle {
 	
 	private DataBase db = DataBase.getInstance();
@@ -29,44 +31,35 @@ public class Server extends AbstractVerticle {
 		
 		router.route("/home.html").handler(ctx -> {
 			Cookie ck = ctx.getCookie("user");
-			String path = System.getProperty("user.dir");
 			if(ck == null || ck.getValue() == null){
-				ctx.response().putHeader("location", "http://localhost:9997/login.html").sendFile(path+"/public/login.html");
-				
+				ctx.response().putHeader("location", "http://localhost:9997/login.html")
+					.sendFile(ApiMethods.PATH_SYSTEM_DIRECTORY + "/public/login.html");
 			} else{
-				String user = ck.getValue();
-				System.out.println(user);
-				ctx.response().putHeader("content text", "text/html").sendFile(path+"/public/home.html");
+				ctx.response().putHeader("content text", "text/html")
+					.sendFile(ApiMethods.PATH_SYSTEM_DIRECTORY + "/public/home.html");
 			}
-			
 		});
 		
 		router.route("/").handler(ctx -> {
 			Cookie ck = ctx.getCookie("user");
-			String path = System.getProperty("user.dir");
 			if(ck == null || ck.getValue() == null){
-				ctx.response().putHeader("content text", "text/html").sendFile(path+"/public/login.html");
-				
+				ctx.response().putHeader("content text", "text/html")
+					.sendFile(ApiMethods.PATH_SYSTEM_DIRECTORY + "/public/login.html");
 			} else{
-				String user = ck.getValue();
-				System.out.println(user);
-				ctx.response().putHeader("content text", "text/html").sendFile(path+"/public/home.html");
+				ctx.response().putHeader("content text", "text/html")
+					.sendFile(ApiMethods.PATH_SYSTEM_DIRECTORY + "/public/home.html");
 			}
-			
 		});
 		
 		router.route("/login.html").handler(ctx -> {
 			Cookie ck = ctx.getCookie("user");
-			String path = System.getProperty("user.dir");
 			if(ck == null || ck.getValue() == null || ck.getValue() == ""){
-				System.out.println("Redirection to login");
-				ctx.response().putHeader("content text", "text/html").sendFile(path+"/public/login.html");
+				ctx.response().putHeader("content text", "text/html")
+					.sendFile(ApiMethods.PATH_SYSTEM_DIRECTORY + "/public/login.html");
 			} else{
-				String user = ck.getValue();
-				System.out.println(user + "ALREADY LOGIN");
-				ctx.response().putHeader("content text", "text/html").sendFile(path+"/public/home.html");
+				ctx.response().putHeader("content text", "text/html")
+					.sendFile(ApiMethods.PATH_SYSTEM_DIRECTORY + "/public/home.html");
 			}
-			
 		});
 		
 		router.route("/*").handler(BodyHandler.create());
@@ -101,12 +94,11 @@ public class Server extends AbstractVerticle {
 		// Register to listen for messages coming IN to the server
 		eb.consumer("chat.to.server").handler(message -> {
 			String str_msg = message.body().toString();
-			Message msg = Parser.Parser.strToMessage(str_msg);
-			System.out.println(msg.toJson() + " Sended");
+			Message msg = Parser.strToMessage(str_msg);
 			api.postMsg(msg);
 			eb.publish("chat.to.client", msg.toJson());
 
-			Message msg_bot = Parser.Parser.parseBotMsg(msg);
+			Message msg_bot = Parser.parseBotMsg(msg);
 			if (msg_bot != null) {
 				System.out.println("publish msg_bot");
 				api.postMsg(msg_bot);
