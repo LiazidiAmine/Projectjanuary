@@ -5,7 +5,7 @@ import static java.util.Objects.requireNonNull;
 import java.util.Objects;
 
 import io.vertx.core.json.JsonArray;
-import io.vertx.ext.web.Cookie;
+//import io.vertx.ext.web.Cookie;
 import io.vertx.ext.web.RoutingContext;
 import thaw.chatroom.Message;
 import thaw.chatroom.User;
@@ -14,6 +14,7 @@ public class ApiMethods {
 	
 	private static ApiMethods api;
 	public static final String PATH_SYSTEM_DIRECTORY = System.getProperty("user.dir");
+	public static String username;
 	private final DataBase db;
 	
 	private ApiMethods(DataBase db){
@@ -34,7 +35,8 @@ public class ApiMethods {
 			register(username, psw);
 		}
 		//check password validity
-		routingContext.addCookie(Cookie.cookie("user", username));
+		routingContext.session().put("user", username);
+		//routingContext.addCookie(Cookie.cookie("user", username));
 		routingContext.response().putHeader("location", "http://localhost:9997/home.html").setStatusCode(302).end();
 	}
 
@@ -108,16 +110,19 @@ public class ApiMethods {
 	}
 	
 	public void getUser(RoutingContext ctx){
-		final Cookie ck = ctx.getCookie("user");
-		final String username = ck.getValue();
+		//final Cookie ck = ctx.getCookie("user");
+		//final String username = ck.getValue();
+		final String username = ctx.session().get("user").toString();
 		final String sql = "SELECT _id, Username FROM Users WHERE Username = '"+username+"'";
 		final String response = db.execQuery(sql).toString();
 		ctx.response().putHeader("content-type", "application/json; charset=utf-8").end(response);
 	}
 	
 	public void logout(RoutingContext ctx){
-		final Cookie ck = ctx.getCookie("user");
-		ck.setMaxAge(0);
+		//final Cookie ck = ctx.getCookie("user");
+		//ck.setMaxAge(0);
+		//ctx.session().destroy();
+		ctx.session().remove("user");
 		ctx.response().putHeader("location", "http://localhost:9997/login.html")
 			.sendFile(PATH_SYSTEM_DIRECTORY + "/public/login.html")
 			.end();

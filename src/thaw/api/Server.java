@@ -5,14 +5,18 @@ import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Cookie;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.Session;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CookieHandler;
 import io.vertx.ext.web.handler.SessionHandler;
 import io.vertx.ext.web.handler.StaticHandler;
+import io.vertx.ext.web.handler.sockjs.BridgeEventType;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
 import io.vertx.ext.web.handler.sockjs.PermittedOptions;
 import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.sstore.LocalSessionStore;
+import io.vertx.ext.web.sstore.SessionStore;
+import io.vertx.groovy.ext.web.sstore.ClusteredSessionStore;
 import thaw.bots.BotsHandler;
 import thaw.chatroom.Message;
 import thaw.parser.*;
@@ -28,18 +32,30 @@ public class Server extends AbstractVerticle {
 	private BotsHandler botsHandler = BotsHandler.getInstance();
 	ObjectMapper mapper = new ObjectMapper();
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void start() throws Exception {
 		Router router = Router.router(vertx);
 
 		router.route().handler(CookieHandler.create());
-		router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx)));
-		
+		SessionStore store = LocalSessionStore.create(vertx);
+		SessionHandler sessionHandler = SessionHandler.create(store);
+		router.route().handler(sessionHandler
+				.setCookieHttpOnlyFlag(true)
+				.setCookieSecureFlag(true)
+		);
+				
+		/*router.route().handler(ctx->{
+			sessionHandler.handle(ctx);
+		});*/
 		router.route("/home.html").handler(ctx -> {
-			Cookie ck = ctx.getCookie("user");
-			if(ck == null || ck.getValue() == null){
+			Session session = ctx.session();
+			String username = session.get("user") == null ? "" : session.get("user").toString();
+			//Cookie ck = ctx.getCookie("user");
+			if(username == null){
 				ctx.response().putHeader("location", "http://localhost:9997/login.html")
 					.sendFile(ApiMethods.PATH_SYSTEM_DIRECTORY + "/public/login.html");
+				return;
 			} else{
 				ctx.response().putHeader("content text", "text/html")
 					.sendFile(ApiMethods.PATH_SYSTEM_DIRECTORY + "/public/home.html");
@@ -47,10 +63,13 @@ public class Server extends AbstractVerticle {
 		});
 		
 		router.route("/").handler(ctx -> {
-			Cookie ck = ctx.getCookie("user");
-			if(ck == null || ck.getValue() == null){
+			Session session = ctx.session();
+			String username = session.get("user") == null ? "" : session.get("user").toString();
+			//Cookie ck = ctx.getCookie("user");
+			if(username == null){
 				ctx.response().putHeader("content text", "text/html")
 					.sendFile(ApiMethods.PATH_SYSTEM_DIRECTORY + "/public/login.html");
+				return;
 			} else{
 				ctx.response().putHeader("content text", "text/html")
 					.sendFile(ApiMethods.PATH_SYSTEM_DIRECTORY + "/public/home.html");
@@ -58,10 +77,13 @@ public class Server extends AbstractVerticle {
 		});
 		
 		router.route("/login.html").handler(ctx -> {
-			Cookie ck = ctx.getCookie("user");
-			if(ck == null || ck.getValue() == null || ck.getValue() == ""){
+			Session session = ctx.session();
+			String username = session.get("user") == null ? "" : session.get("user").toString();
+			//Cookie ck = ctx.getCookie("user");
+			if(username == null || username == ""){
 				ctx.response().putHeader("content text", "text/html")
 					.sendFile(ApiMethods.PATH_SYSTEM_DIRECTORY + "/public/login.html");
+				return;
 			} else{
 				ctx.response().putHeader("content text", "text/html")
 					.sendFile(ApiMethods.PATH_SYSTEM_DIRECTORY + "/public/home.html");
@@ -77,9 +99,19 @@ public class Server extends AbstractVerticle {
 				.addOutboundPermitted(new PermittedOptions().setAddress("chat.to.client"));
 
 		// Create the event bus bridge and add it to the router.
-		SockJSHandler ebHandler = SockJSHandler.create(vertx).bridge(opts);
+		SockJSHandler sockJSHandler = SockJSHandler.create(vertx).bridge(opts);
+		/*sockJSHandler.bridge(opts, be->{
+			if(be.type() == BridgeEventType.RECEIVE){
+				System.out.println("SESSION "+be.socket().webSession().id());
+				JsonObject rawMessage = be.getRawMessage();
+				rawMessage.put("headers",  be.socket().webSession().id());
+				//be.setRawMessage(rawMessage);
+			}
+			
+			//be.complete(true);
+		});*/
 
-		router.route("/eventbus/*").handler(ebHandler);
+		router.route("/eventbus").handler(sockJSHandler);
 		router.post("/login").handler(api::login);
 		router.post("/deleteCh").handler(api::deleteChannel);
 		router.get("/channels").handler(api::getChannels);
@@ -101,6 +133,13 @@ public class Server extends AbstractVerticle {
 		eb.consumer("chat.to.server").handler(message -> {
 			String str_msg = message.body().toString();
 			Message msg = Parser.strToMessage(str_msg);
+			String sessionId = message.headers().get("headers");
+			System.out.println(sessionId);
+			/*store.get(sessionId, res->{
+				Session session = res.result();
+				System.out.println(session.get("user").toString());
+				//msg.setUsername(session.get("user"));
+			});*/
 			api.postMsg(msg);
 			eb.publish("chat.to.client", msg.toJson());
 
@@ -125,4 +164,5 @@ public class Server extends AbstractVerticle {
 		// Close the database connection.
 		db.close();
 	}
+	
 }
