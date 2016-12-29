@@ -29,7 +29,6 @@ eb.onopen = function () {
 
 
 function send(event) {
-  var user = getCookie("user");
   if ( current_channel != ""){
     if (event.keyCode == 13 || event.which == 13) {
       var message = {

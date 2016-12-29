@@ -20,23 +20,29 @@
         <script src="functions.js"></script>
     <link href="http://netdna.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css" rel="stylesheet">
     <link href="chat_room.css" rel="stylesheet" type="text/css">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
 </head>
 <body onload="loadChannelList()">
-<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet">
-  <div class="container bootstrap snippet">
-    <div class="row">
-      <div class="search navbar-form navbar-right">
-          <div class="input-group">
-              <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
-              <div class="input-group-btn">
-                  <button class="btn btn-info" type="button" id="search"> <i class="glyphicon glyphicon-search"></i>
 
-                  </button>
-              </div>
-          </div>
-          <button type="button" class="btn btn-danger" onclick="logout()">Logout</button>
+  <div class="container bootstrap snippet">
+    
+    <div class="navbar-form navbar" role="search">
+      
+      <div class="input-group">
+        <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
+        <div class="input-group-btn">
+            <button class="btn btn-info" type="button" id="search"> 
+              <i class="glyphicon glyphicon-search"></i>
+            </button>
+        </div>
       </div>
-  		<div class="col-md-4 bg-white ">
+      <button type="button" class="login-btn btn btn-danger" onclick="logout()">Logout</button>
+    
+    </div>
+
+    <div class="row">
+
+      <div class="col-md-4 bg-white ">
         <!-- =============================================================== -->
         <!-- channel list -->
         <a class="active bounceInDown">
