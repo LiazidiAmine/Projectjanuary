@@ -94,8 +94,8 @@ public class ApiMethods {
 	}
 
 	public void getMessages(RoutingContext routingContext) {
-		final String channel = routingContext.request().getParam("channel");
-		final String query = "SELECT Content, Time, Username FROM " + channel;
+		final String channel = "Chan_" + routingContext.request().getParam("channel");
+		final String query = "SELECT Content, Time, Username FROM " + channel + " LIMIT 20;";
 		final String response = db.execQuery(query).toString();
 		routingContext.response().putHeader("content-type", "application/json; charset=utf-8").end(response);
 	}

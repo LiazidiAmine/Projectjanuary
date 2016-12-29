@@ -12,7 +12,7 @@
     	home, about, credits... or in a good page that you want
     	THANK YOU MY FRIEND!
     -->
-    <title>chat room - Bootdey.com</title>
+    <title>chat room</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     <script src="//cdn.jsdelivr.net/sockjs/0.3.4/sockjs.min.js"></script>
@@ -26,9 +26,9 @@
 
   <div class="container bootstrap snippet">
     
-    <div class="navbar-form navbar" role="search">
+    <div class="navbar-form navbar row" role="search">
       
-      <div class="input-group">
+      <div class="input-group col-sm-4">
         <input type="text" class="form-control" placeholder="Search" name="srch-term" id="srch-term">
         <div class="input-group-btn">
             <button class="btn btn-info" type="button" id="search"> 
@@ -36,7 +36,10 @@
             </button>
         </div>
       </div>
-      <button type="button" class="login-btn btn btn-danger" onclick="logout()">Logout</button>
+      <div id="current-channel" class="col-sm-4 current_channel">
+        <h5 id="current-channel_title"> Thaw </h5>
+      </div>
+      <button type="button" class="col-sm-4 login-btn btn btn-danger" onclick="logout()">Logout</button>
     
     </div>
 
@@ -104,11 +107,17 @@
 
 <script src="http://netdna.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 <script type="text/javascript">
-  $('#search').click(function(){
-    $('.message').hide();
-    var txt = $('#srch-term').val();
-    $('#chat :contains("'+txt+'")').show();
-  });
+  $('#srch-term').keyup(function(){
+   var valThis = $(this).val().toLowerCase();
+    if(valThis == ""){
+        $('.chat > li').show();
+    } else {
+        $('.chat > li').each(function(){
+            var text = $(this).text().toLowerCase();
+            (text.indexOf(valThis) >= 0) ? $(this).show() : $(this).hide();
+        });
+   };
+});
   function sendInput(){
     var e = new Event("keydown");
     e.which = 13;

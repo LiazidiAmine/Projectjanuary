@@ -76,6 +76,7 @@ function loadChannel(title) {
 	document.getElementById('chat-list').innerHTML = "";
 	loadMessageList(title);
   current_channel = title;
+  $('#current-channel_title').text("Channel : "+title);
 }
 
 function loadChannelList(){
@@ -88,7 +89,7 @@ function loadChannelList(){
     success: function(res){
       for (var i in res){
       	if(document.getElementById(res[i].name) == undefined){
-        		addChannel(res[i].name);
+        		addChannel(res[i].name.replace("Chan_",""));
         }
       }
     }

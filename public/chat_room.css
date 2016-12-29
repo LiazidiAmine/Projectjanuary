@@ -21,6 +21,10 @@ body {
       float: right !important;
 }
 
+#current-channel {
+  color : white;
+}
+
 .friend-list {
   list-style: none;
   margin-left: -40px;
