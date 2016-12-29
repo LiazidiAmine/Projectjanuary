@@ -85,7 +85,7 @@ public class ApiMethods {
 	public void postMsg(Message msg) {
 		Objects.requireNonNull(msg);
 		if (!msg.getContent().isEmpty()) {
-			final String query_insert = "INSERT INTO " + msg.getChannel() + "(" + "Content, Username, Time) VALUES (" + "'"
+			final String query_insert = "INSERT INTO " + "Chan_"+ msg.getChannel() + "(" + "Content, Username, Time) VALUES (" + "'"
 					+ msg.getContent() + "'" + ", " + "'" + msg.getUsername() + "'" + ", " + "'" + msg.getDate() + "');";
 			db.setQueryUpdate(query_insert);
 			return;
