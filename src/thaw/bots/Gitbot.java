@@ -48,7 +48,7 @@ public class Gitbot implements Callable<JsonObject>{
 			}
 			String content = Arrays.asList(str.toString().split("\n"))
 					.stream()
-					.map(x-> "<p>" + x + "</p> </br>")
+					.map(x-> "<p>" + x + "</p>")
 					.collect(Collectors.joining(""));
 			
 			json.put("content", content);
