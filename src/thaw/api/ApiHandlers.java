@@ -5,44 +5,50 @@ import static java.util.Objects.requireNonNull;
 import java.util.Objects;
 
 import io.vertx.core.json.JsonArray;
+import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Cookie;
 import io.vertx.ext.web.RoutingContext;
 import thaw.chatroom.Message;
 import thaw.chatroom.User;
+import thaw.utils.Hash;
 
-public class ApiMethods {
+public class ApiHandlers {
 	
-	private static ApiMethods api;
+	private static ApiHandlers api;
 	public static final String PATH_SYSTEM_DIRECTORY = System.getProperty("user.dir");
 	private final DataBase db;
 	
-	private ApiMethods(DataBase db){
+	private ApiHandlers(DataBase db){
 		this.db = db;
 	}
 	
-	public static ApiMethods getInstance(DataBase db){
+	public static ApiHandlers getInstance(DataBase db){
 		if(api == null){
-			api = new ApiMethods(db);
+			api = new ApiHandlers(db);
 		}
 		return api;
 	}
 	
-	public void login(RoutingContext routingContext) {
-		final String username = Objects.requireNonNull(routingContext.request().getParam("uname"));
-		final String psw = Objects.requireNonNull(routingContext.request().getParam("psw"));
+	public void login(RoutingContext ctx) {
+		final String username = Objects.requireNonNull(ctx.request().getParam("uname"));
+		final String psw = Objects.requireNonNull(ctx.request().getParam("psw"));
 		if(isRegistred(username).isEmpty()){
 			register(username, psw);
 		}
-		//check password validity
-		routingContext.addCookie(Cookie.cookie("user", username));
-		routingContext.response().putHeader("location", "http://localhost:9997/home.html").setStatusCode(302).end();
+		if(validUser(new User(username, psw))){
+			ctx.addCookie(Cookie.cookie("user", username));
+			ctx.response().putHeader("location", "http://localhost:9997/home.html").setStatusCode(302).end();
+		}else{
+			ctx.response().putHeader("Content-Type", "text/plain").setStatusCode(401).end("Unauthorized");
+		}
 	}
 
 	private void register(String username, String psw) {
 		Objects.requireNonNull(username);
-		Objects.requireNonNull(psw);//TODO HASH PASSWORD
-		final String insert = "INSERT INTO Users (Username, Password, Time) VALUES ('" + username + "', '"
-				+ psw + "');";
+		Objects.requireNonNull(psw);
+		final String hash = Hash.toSHA256(psw);
+		final String insert = "INSERT INTO Users (Username, Password) VALUES ('" + username + "', '"
+				+ hash + "');";
 		db.setQueryUpdate(User.CREATE_TABLE_USERS);
 		db.setQueryUpdate(insert);
 	}
@@ -52,12 +58,13 @@ public class ApiMethods {
 		final String query = "SELECT _id FROM Users WHERE Username = '" + username + "';";
 		return db.execQuery(query);
 	}
-	/*
+	
 	private boolean validUser(User user){
-		String query = "SELECT * FROM Users WHERE Username = '" + user.getUsername() +"';";
-		System.out.println(db.execQuery(query));//TODO
-		return db.execQuery(query).contains(user.getPassword());
-	}*/
+		final String hash = Hash.toSHA256(user.getPassword());
+		final String query = "SELECT * FROM Users WHERE Username = '" + user.getUsername() +"';";
+		final JsonObject result = db.execQuery(query).getJsonObject(0);
+		return result.getString("username").equals(user.getUsername()) && result.getString("password").equals(hash);
+	}
 
 	public void deleteChannel(RoutingContext routingContext) {
 		final String title = requireNonNull(routingContext.request().getParam("title"));
@@ -107,20 +114,9 @@ public class ApiMethods {
 				.end(response);
 	}
 	
-	public void getUser(RoutingContext ctx){
-		final Cookie ck = ctx.getCookie("user");
-		final String username = ck.getValue();
-		final String sql = "SELECT _id, Username FROM Users WHERE Username = '"+username+"'";
-		final String response = db.execQuery(sql).toString();
-		ctx.response().putHeader("content-type", "application/json; charset=utf-8").end(response);
-	}
-	
 	public void logout(RoutingContext ctx){
-		final Cookie ck = ctx.getCookie("user");
-		ck.setMaxAge(0);
-		ctx.response().putHeader("location", "http://localhost:9997/login.html")
-			.sendFile(PATH_SYSTEM_DIRECTORY + "/public/login.html")
-			.end();
+		ctx.getCookie("user").setMaxAge(0);
+		ctx.response().putHeader("location", "http://localhost:9997/login.html").end();
 	}
 
 }

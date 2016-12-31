@@ -22,28 +22,9 @@
         <label><b>Password</b></label>
         <input id="psw" type="password" placeholder="Enter Password" name="psw" required>
             
-        <button id="submit" type="submit">Login</button>
+        <button type="submit">Login</button>
       </div>
 
     </form>
-<script language="JavaScript">
-    $(document).ready(function () {
-        $('#submit').on('click', function () {
-            $.ajax({
-                url: '/login',
-                type : 'POST',
-                dataType: 'json',
-                data: {
-                    "uname":document.getElementById('uname').value,
-                    "psw":document.getElementById('psw').value
-                },
-                success: function (text) {
-                    //$('#token').html('Current Token: ' + text);
-                    console.log(text);
-                }
-            });
-        });
-    });
-</script>
 </body>
 </html>

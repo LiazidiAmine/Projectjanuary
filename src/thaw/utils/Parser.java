@@ -1,4 +1,4 @@
-package thaw.parser;
+package thaw.utils;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;

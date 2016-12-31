@@ -4,11 +4,25 @@ body {
   color: #777;
   background: #f9f9f9;
   font-family: 'Open Sans',sans-serif;
-  margin-top:20px;
 }
 
 .bg-white {
   /*background-color: #fff;*/
+}
+
+.navbar {
+    margin-bottom: 50px;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+    background-color: black;
+}
+
+.login-btn {
+      float: right !important;
+}
+
+#current-channel {
+  color : white;
 }
 
 .friend-list {
@@ -173,7 +187,6 @@ img {
 .chat-box {
   position: fixed;
   bottom: 0;
-  left: 444px;
   right: 0;
   padding: 15px;
   border-top: 1px solid #eee;

@@ -22,20 +22,18 @@ eb.onopen = function () {
   eb.registerHandler("chat.to.client", function (err, msg) {
     
     addMessage(msg.body.content, "left", msg.body.username, msg.body.date);
+    window.scrollBy(0, 1200); 
     
-    $("#chat-list").scrollDown($("#chat-list").scrollDown() - 100);
   });
 }
 
 
 function send(event) {
-  var user = getCookie("user");
   if ( current_channel != ""){
     if (event.keyCode == 13 || event.which == 13) {
       var message = {
         content : document.getElementById('input').value,
-        channel : current_channel,
-        username : user
+        channel : current_channel
       };
       if (message.content.length > 0) {
         eb.publish("chat.to.server", JSON.stringify(message));
@@ -60,6 +58,8 @@ function addMessage(msg, dir, user, time) {
             	"</div>"+
             "</li>";
 	document.getElementById('chat-list').innerHTML += html;
+  window.scrollBy(0, 200); 
+
 }
 
 function addChannel(title){
@@ -77,6 +77,7 @@ function loadChannel(title) {
 	document.getElementById('chat-list').innerHTML = "";
 	loadMessageList(title);
   current_channel = title;
+  $('#current-channel_title').text("Channel : "+title);
 }
 
 function loadChannelList(){
@@ -89,7 +90,7 @@ function loadChannelList(){
     success: function(res){
       for (var i in res){
       	if(document.getElementById(res[i].name) == undefined){
-        		addChannel(res[i].name);
+        		addChannel(res[i].name.replace("Chan_",""));
         }
       }
     }
@@ -110,7 +111,7 @@ function loadMessageList(channel_title){
             for (var i in res){
             	addMessage(res[i].content, "left", res[i].username, res[i].time)
             }
-            div.scrollTop = div.scrollHeight;
+            
           }
         }
     });

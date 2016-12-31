@@ -15,7 +15,7 @@ public class DataBase {
 	private static DataBase instance;
 	
 	private DataBase(){
-		
+		init();
 	}
 	
 	public static DataBase getInstance(){
@@ -23,6 +23,11 @@ public class DataBase {
 			instance = new DataBase();
 		}
 		return instance;
+	}
+	
+	private void init(){
+		final String query = "CREATE TABLE IF NOT EXISTS Users (_id INTEGER PRIMARY KEY, Username TEXT NOT NULL, Password TEXT NOT NULL)";
+		setQueryUpdate(query);
 	}
 	
 	

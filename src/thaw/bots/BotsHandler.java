@@ -23,25 +23,22 @@ public class BotsHandler {
 	public static final String RSS_BOT = "rss-bot";
 	//private static final String GITHUB_BOT = "GITHUB_BOT";
 	private static Map<String,Function<String,JsonObject>> map = new HashMap<>();
-	private static BotsHandler instance;
 	
-	private BotsHandler(){
-		init();
-	}
-	
-	private void init(){
-		map.put(GIT_BOT, (line)->{
-			Objects.requireNonNull(line);
-			List<String> params = Arrays.asList(line.split(" ")).stream().skip(1).collect(Collectors.toList());
-			requireArgsGitBot(params);
-			return gitBot(params.get(0), params.get(1));
-		});
-		map.put(RSS_BOT, (line)->{
-			Objects.requireNonNull(line);
-			List<String> params = Arrays.asList(line.split(" ")).stream().skip(1).collect(Collectors.toList());
-			requireArgsRssBot(params);
-			return rssBot(params.get(0));
-		});
+	public static void init(){
+		synchronized(map){
+			map.put(GIT_BOT, (line)->{
+				Objects.requireNonNull(line);
+				List<String> params = Arrays.asList(line.split(" ")).stream().skip(1).collect(Collectors.toList());
+				requireArgsGitBot(params);
+				return gitBot(params.get(0), params.get(1));
+			});
+			map.put(RSS_BOT, (line)->{
+				Objects.requireNonNull(line);
+				List<String> params = Arrays.asList(line.split(" ")).stream().skip(1).collect(Collectors.toList());
+				requireArgsRssBot(params);
+				return rssBot(params.get(0));
+			});
+		}
 	}
 	
 	private static JsonObject gitBot(String user, String repository) {	
@@ -63,13 +60,9 @@ public class BotsHandler {
 		Future<JsonObject> result = null;
 		try {
 			result = es.submit(new RssBot(url));
-		} catch (IllegalArgumentException | IOException | FeedException e1) {
-			e1.printStackTrace();
-		}
-		try {
 			return result.get();
-		} catch (InterruptedException | ExecutionException e) {
-			e.printStackTrace();
+		} catch (IllegalArgumentException | IOException | FeedException | InterruptedException |ExecutionException e1) {
+			e1.printStackTrace();
 		}
 		return null;
 	}
@@ -86,7 +79,7 @@ public class BotsHandler {
 		}
 	}
 	
-	public boolean isBotCall(String line) {
+	public static boolean isBotCall(String line) {
 		Objects.requireNonNull(line);
 		String botName = Arrays.asList(line.split(" ")).get(0);
 		if(map.containsKey(botName)){
@@ -95,16 +88,11 @@ public class BotsHandler {
 		return false;
 	}
 	
-	public static BotsHandler getInstance(){
-		if(instance == null){
-			instance = new BotsHandler();
+	public static JsonObject botCall(String line){
+		synchronized(map){
+			String bot_name = Arrays.asList(line.split(" ")).get(0);
+			return map.get(bot_name).apply(line);
 		}
-		return instance;
-	}
-	
-	public JsonObject botCall(String line){
-		String bot_name = Arrays.asList(line.split(" ")).get(0);
-		return map.get(bot_name).apply(line);
 	}
 	
 }
