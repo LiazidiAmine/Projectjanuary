@@ -6,8 +6,6 @@ public class User {
 	
 	private final String username;
 	private final String password;
-	public static final String CREATE_TABLE_USERS = "CREATE TABLE IF NOT EXISTS Users " + "( _id INTEGER PRIMARY KEY, "
-			+ "Username TEXT NOT NULL, " + "Password TEXT NOT NULL);";
 	
 	public User(String username, String password) {
 		this.username = username;
@@ -33,13 +31,6 @@ public class User {
 				.put("password", password);
 		return json;
 	}
-	
-	/*public void sendMessage(Channel channel, Message message) {
-		channel.getMessages().put(message.getId(), message);
-	}
-	
-	public void removeMessage(Channel channel, Message message) {
-		channel.getMessages().remove(message.getId());
-	}*/
+
 
 }

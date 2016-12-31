@@ -114,7 +114,7 @@ public class Server extends AbstractVerticle {
 		 */
 		SockJSHandler ebHandler = SockJSHandler.create(vertx).bridge(opts);
 
-		router.route("/eventbus/**").handler(ebHandler);
+		router.route("/eventbus/*").handler(ebHandler);
 		router.post("/login").handler(api::login);
 		router.post("/deleteCh").handler(api::deleteChannel);
 		router.get("/channels").handler(api::getChannels);
@@ -126,7 +126,7 @@ public class Server extends AbstractVerticle {
 		/**
 		 *  Create a router endpoint for the static and public content.
 		 */
-		router.route("/**").handler(StaticHandler.create("public"));
+		router.route("/*").handler(StaticHandler.create("public"));
 				
 		/** Start the web server and tell it to use the router to handle
 		 * requests

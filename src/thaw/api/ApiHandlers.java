@@ -58,7 +58,6 @@ public class ApiHandlers {
 		Objects.requireNonNull(psw);
 		final String hash = Hash.toSHA256(psw);
 		final String insert = "INSERT INTO Users (Username, Password) VALUES ('" + username + "', '"+ hash + "');";
-		db.setQueryUpdate(User.CREATE_TABLE_USERS);
 		db.setQueryUpdate(insert);
 	}
 
@@ -100,9 +99,12 @@ public class ApiHandlers {
 	public void deleteChannel(RoutingContext routingContext) {
 		final String title = "Chan_"+requireNonNull(routingContext.request().getParam("title"));
 		final String query = "DROP TABLE IF EXISTS " + title + ";";
-		db.setQueryUpdate(query);
-		routingContext.response().putHeader("content-type", "application/json").end();
-			
+		if(isChannelExist(title)){
+			db.setQueryUpdate(query);
+			routingContext.response().putHeader("content-type", "application/json").end("{'status':'success'}");
+		}else{
+			routingContext.response().putHeader("content-type", "application/json").end("{'status':'bad request'}");
+		}
 	}
 
 	/**
@@ -115,10 +117,10 @@ public class ApiHandlers {
 				+ "Content VARCHAR(20)," + "Username VARCHAR(20), " + "Time Date);";
 		if (!title.isEmpty()) {
 			db.setQueryUpdate(query);
-			routingContext.response().putHeader("location", "http://localhost:9997/home.html").setStatusCode(302).end();
+			routingContext.response().putHeader("location", "http://localhost:9997/home.html").setStatusCode(302).end("{'status':'success'}");
 			return;
 		}
-		routingContext.response().end();
+		routingContext.response().end("{'status':'bad request'}");
 	}
 
 	/**
@@ -181,7 +183,7 @@ public class ApiHandlers {
 		if(ck != null){
 			ck.setMaxAge(0);
 		}
-		ctx.response().putHeader("location", "http://localhost:9997/login.html").end();
+		ctx.response().putHeader("location", "http://localhost:9997/login.html").end("{'status':'success'}");
 	}
 	
 	/**
