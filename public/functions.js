@@ -115,7 +115,10 @@ function loadMessageList(channel_title){
 }
 
 function deleteCh(title) {
-	var json = {
+	if(current_channel == title){
+    document.getElementById('chat-list').innerHTML = "";
+  }
+  var json = {
 		title : title
 	};
 	$.ajax({

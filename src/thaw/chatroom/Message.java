@@ -24,12 +24,9 @@ public class Message {
 		return content;
 	}
 
-	
 	public String getChannel() {
 		return channel;
 	}
-	
-	
 	
 	public String getDate() {
 		return date;
@@ -41,14 +38,6 @@ public class Message {
 
 	public String getUsername() {
 		return username;
-	}
-
-	public void setUsername(String username) {
-		this.username = username;
-	}
-
-	public void setContent(String content) {
-		this.content = content;
 	}
 
 	public void setChannel(String channel) {
@@ -63,16 +52,5 @@ public class Message {
 				.put("channel", channel);
 		return json;
 	}
-	
-  @Override
-  public String toString() {
-    final StringBuffer sb = new StringBuffer("Message{");
-    sb.append(" date : '").append(date).append('\'');
-    sb.append(", username : '").append(username).append('\'');
-    sb.append(", content : '").append(content).append('\'');
-    sb.append(", channel : ").append(channel);
-    sb.append('}');
-    return sb.toString();
-  }
 
 }

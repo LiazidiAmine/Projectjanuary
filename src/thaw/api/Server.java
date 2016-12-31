@@ -21,30 +21,37 @@ import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.net.JksOptions;
 
+import java.io.IOException;
 import java.util.Objects;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class Server extends AbstractVerticle {
 	
-	/*
-	 * Create our unique DataBase instance
+	/**
+	 * create our unique DataBase instance
 	 */
 	private DataBase db = DataBase.getInstance();
-	private ApiHandlers api = ApiHandlers.getInstance(db);
-	ObjectMapper mapper = new ObjectMapper();
+	
+	/**
+	 * create Api Handlers object
+	 * @param database
+	 */
+	private ApiHandlers api = new ApiHandlers(db);
 
 	@Override
 	public void start(Future<Void> fut) throws Exception {
+		
+		/***
+		 * initialize bots state
+		 */
 		BotsHandler.init();
 		Router router = Router.router(vertx);
 		
-		/*
-		 * Secure limit of uploads
+		/***
+		 * we need to handle body requests
 		 */
 		router.route().handler(BodyHandler.create());
-		/*
-		 * We need to handle sessions
+		/***
+		 * we need to handle sessions
 		 */
 		router.route().handler(CookieHandler.create());
 		router.route().handler(SessionHandler
@@ -78,32 +85,36 @@ public class Server extends AbstractVerticle {
 		
 		router.route("/login.html").handler(ctx -> {
 				ctx.response().putHeader("Content-Type", "text/html; charset=UTF-8")
-					// do not allow proxies to cache the data
+				  /*** do not allow proxies to cache the data */
 		          .putHeader("Cache-Control", "no-store, no-cache")
-		          // prevents Internet Explorer from MIME - sniffing a
-		          // response away from the declared content-type
+		          /*** prevents Internet Explorer from MIME - sniffing a
+		           response away from the declared content-type */
 		          .putHeader("X-Content-Type-Options", "nosniff")
-		          // Strict HTTPS (for about ~6Months)
+		          /*** Strict HTTPS (for about ~6Months) */
 		          .putHeader("Strict-Transport-Security", "max-age=" + 15768000)
-		          // IE8+ do not allow opening of attachments in the context of this resource
+		          /*** IE8+ do not allow opening of attachments in the context of this resource */
 		          .putHeader("X-Download-Options", "noopen")
-		          // enable XSS for IE
+		          /*** enable XSS for IE */
 		          .putHeader("X-XSS-Protection", "1; mode=block")
-		          // deny frames
+		          /*** deny frames */
 		          .putHeader("X-FRAME-OPTIONS", "DENY")
 					.sendFile(ApiHandlers.PATH_SYSTEM_DIRECTORY + "/public/login.html");
 		});
 		
-		// Allow events for the designated addresses in/out of the event bus
-		// bridge
+		/***
+		 *  Allow events for the designated addresses in/out of the event bus
+		 *  bridge
+		 */
 		BridgeOptions opts = new BridgeOptions()
 				.addInboundPermitted(new PermittedOptions().setAddress("chat.to.server"))
 				.addOutboundPermitted(new PermittedOptions().setAddress("chat.to.client"));
 
-		// Create the event bus bridge and add it to the router.
+		/**
+		 *  Create the event bus bridge and add it to the router.
+		 */
 		SockJSHandler ebHandler = SockJSHandler.create(vertx).bridge(opts);
 
-		router.route("/eventbus/*").handler(ebHandler);
+		router.route("/eventbus/**").handler(ebHandler);
 		router.post("/login").handler(api::login);
 		router.post("/deleteCh").handler(api::deleteChannel);
 		router.get("/channels").handler(api::getChannels);
@@ -112,13 +123,20 @@ public class Server extends AbstractVerticle {
 		router.get("/logout").handler(api::logout);
 		router.get("/getUser").handler(api::getUser);
 
-		// Create a router endpoint for the static content.
-		router.route("/*").handler(StaticHandler.create("public"));
+		/**
+		 *  Create a router endpoint for the static and public content.
+		 */
+		router.route("/**").handler(StaticHandler.create("public"));
 				
-		// Start the web server and tell it to use the router to handle
-		// requests.
+		/** Start the web server and tell it to use the router to handle
+		 * requests
+		 */
 		vertx.createHttpServer().requestHandler(router::accept).listen(9997);
 		
+		/**
+		 * adding httpserver options
+		 * to secure the server
+		 */
 		vertx.executeBlocking(future -> {
 			HttpServerOptions httpOpts = new HttpServerOptions();
 				httpOpts.setKeyStoreOptions(new JksOptions().setPath("./config/webserver/.keystore.jks").setPassword("amineliazidi"));
@@ -134,10 +152,18 @@ public class Server extends AbstractVerticle {
 
 		EventBus eb = vertx.eventBus();
 
-		// Register to listen for messages coming IN to the server
+		/*** Register to listen for messages coming IN to the server
+		 * 
+		 */
 		eb.consumer("chat.to.server").handler(message -> {
 			String str_msg = message.body().toString();
-			Message msg = Parser.strToMessage(str_msg);
+			Message msg = null;
+			try {
+				msg = Parser.strToMessage(str_msg);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			api.postMsg(msg);
 			eb.publish("chat.to.client", msg.toJson());
 
@@ -146,7 +172,12 @@ public class Server extends AbstractVerticle {
 			if(BotsHandler.isBotCall(msg.getContent())){
 				json_response = BotsHandler.botCall(msg.toJson().getString("content"));
 				Objects.requireNonNull(json_response);
-				msg_bot = Parser.parseBotMsg(json_response);
+				try {
+					msg_bot = Parser.parseBotMsg(json_response);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				if (msg_bot != null) {
 					msg_bot.setChannel(msg.getChannel());
 					api.postMsg(msg_bot);
@@ -157,6 +188,10 @@ public class Server extends AbstractVerticle {
 
 	}
 
+	/**
+	 * (non-Javadoc)
+	 * @see io.vertx.core.AbstractVerticle#stop()
+	 */
 	@Override
 	public void stop() throws Exception {
 		// Close the database connection.

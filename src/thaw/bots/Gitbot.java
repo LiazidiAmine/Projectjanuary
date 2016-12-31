@@ -23,6 +23,14 @@ public class Gitbot implements Callable<JsonObject>{
 	private final static String NAME = "GitBot";
 	private final Object lock = new Object();
 	
+	/*
+	 * Git bot constructor
+	 * 
+	 * @param String github username
+	 * @param String github user's repository
+	 * 
+	 * 
+	 */
 	public Gitbot(String user, String repository){
 		synchronized(lock){
 			Objects.requireNonNull(user);
@@ -31,6 +39,14 @@ public class Gitbot implements Callable<JsonObject>{
 		}
 	}
 	
+	/*
+	 * (non-Javadoc)
+	 * @see java.util.concurrent.Callable#call()
+	 * 
+	 * retrieve repository commits and return it as jsonObject
+	 * 
+	 * @return jsonObject
+	 */
 	@Override
 	public JsonObject call(){
 		synchronized(lock){

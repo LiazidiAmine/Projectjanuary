@@ -25,6 +25,11 @@ public class RssBot implements Callable<JsonObject>{
 	private Iterator<SyndFeed> itEntries;
 	private final Object lock = new Object();
 	
+		/*
+		 * RSS Bot constructor
+		 * 
+		 * @param String url
+		 */
 		@SuppressWarnings("unchecked")
 		public RssBot(String str_url) throws IOException, IllegalArgumentException, FeedException{
 			synchronized(lock){
@@ -36,6 +41,13 @@ public class RssBot implements Callable<JsonObject>{
 			}
 		}
 		
+		/*
+		 * (non-Javadoc)
+		 * @see java.util.concurrent.Callable#call()
+		 * retrieve feed informations and return it as jsonObject
+		 * 
+		 * @return JsonObject
+		 */
 		@Override
 		public JsonObject call(){
 			synchronized(lock){
@@ -43,8 +55,7 @@ public class RssBot implements Callable<JsonObject>{
 				StringBuilder builder = new StringBuilder();
 				while (itEntries.hasNext()) {
 					SyndEntry entry = (SyndEntry) itEntries.next();
-					builder.append("<div><p>Title: " + entry.getTitle())
-						.append("</p><p>Link: " + entry.getLink())
+					builder.append("<div><p>Title: " + entry.getTitle()).append("</p><p>Link: " + entry.getLink())
 						.append("</p><p>Author: " + entry.getAuthor())
 						.append("</p><p>Publish Date: " + entry.getPublishedDate())
 						.append("</p><p>Description: " + entry.getDescription().getValue())
