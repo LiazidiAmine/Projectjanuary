@@ -13,11 +13,11 @@ import io.vertx.core.json.JsonObject;
 import thaw.chatroom.Message;
 
 public class Parser {
+	private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
 	public static Message strToMessage(String msg){
 		ObjectMapper mapper = new ObjectMapper();
 		Message obj = null;
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		String date = dateFormat.format(new Date());
 		try {
 			obj = mapper.readValue((msg), Message.class);
@@ -36,7 +36,6 @@ public class Parser {
 		Message msg_bot = null;
 		JsonFactory factory = new JsonFactory();
 		JsonParser parser = null;
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		String date = dateFormat.format(new Date());
 		try {	
 			parser = factory.createParser(json.toString());

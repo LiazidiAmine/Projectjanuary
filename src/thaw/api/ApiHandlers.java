@@ -4,6 +4,7 @@ import static java.util.Objects.requireNonNull;
 
 import java.util.Objects;
 
+import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import io.vertx.ext.web.Cookie;
@@ -115,8 +116,20 @@ public class ApiHandlers {
 	}
 	
 	public void logout(RoutingContext ctx){
-		ctx.getCookie("user").setMaxAge(0);
+		Cookie ck = ctx.getCookie("user");
+		if(ck != null){
+			ck.setMaxAge(0);
+		}
 		ctx.response().putHeader("location", "http://localhost:9997/login.html").end();
+	}
+	
+	public void getUser(RoutingContext ctx){
+		Cookie ck = ctx.getCookie("user");
+		String username = "";
+		if(ck != null){
+			username = ck.getValue();
+		}
+		ctx.response().putHeader("content-type", "application/json; charset=utf-8").end(Json.encodePrettily(username));
 	}
 
 }

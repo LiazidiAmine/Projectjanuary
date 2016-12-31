@@ -110,6 +110,7 @@ public class Server extends AbstractVerticle {
 		router.get("/messages/:channel").handler(api::getMessages);
 		router.post("/addCh").handler(api::addChannel);
 		router.get("/logout").handler(api::logout);
+		router.get("/getUser").handler(api::getUser);
 
 		// Create a router endpoint for the static content.
 		router.route("/*").handler(StaticHandler.create("public"));

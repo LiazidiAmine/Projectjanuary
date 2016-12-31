@@ -1,19 +1,4 @@
 var current_channel = "";
-/****************Cookie************************/
-function getCookie(cname) {
-    var name = cname + "=";
-    var ca = document.cookie.split(';');
-    for(var i = 0; i <ca.length; i++) {
-        var c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-        }
-    }
-    return "";
-}
 
 /****************WebSocket********************/
 var eb = new EventBus("/eventbus/");
@@ -29,20 +14,32 @@ eb.onopen = function () {
 
 
 function send(event) {
-  if ( current_channel != ""){
-    if (event.keyCode == 13 || event.which == 13) {
-      var message = {
-        content : document.getElementById('input').value,
-        channel : current_channel
-      };
-      if (message.content.length > 0) {
-        eb.publish("chat.to.server", JSON.stringify(message));
-        document.getElementById('input').value = "";
-      }
+  $.ajax({
+    url: "http://localhost:9997/getUser",
+    type: "GET",
+    dataType: "json",
+    success: function(res){
+      if ( current_channel != ""){
+        if (event.keyCode == 13 || event.which == 13) {
+          var message = {
+            content : document.getElementById('input').value,
+            channel : current_channel,
+            username : res
+          };
+          if (message.content.length > 0) {
+            eb.publish("chat.to.server", JSON.stringify(message));
+            document.getElementById('input').value = "";
+          }
+        }
+      } else {
+        alert("First, select a channel");
+      }  
+    },
+    error: function(err){
+      console.log(err);
+      
     }
-  } else {
-    alert("First, select a channel");
-  }
+  });
 }
 /********************************************************/
 
