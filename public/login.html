@@ -7,6 +7,7 @@
     <!-- javascript -->
     <script type="text/javascript" src="javascript.js" ></script>
     <!-- javascript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 </head>
 <body>
 
@@ -16,15 +17,33 @@
 
       <div class="container">
         <label><b>Username</b></label>
-        <input type="text" placeholder="Enter Username" name="uname" required>
+        <input id="uname" type="text" placeholder="Enter Username" name="uname" required>
 
         <label><b>Password</b></label>
-        <input type="password" placeholder="Enter Password" name="psw" required>
+        <input id="psw" type="password" placeholder="Enter Password" name="psw" required>
             
-        <button type="submit">Login</button>
+        <button id="submit" type="submit">Login</button>
       </div>
 
     </form>
-
+<script language="JavaScript">
+    $(document).ready(function () {
+        $('#submit').on('click', function () {
+            $.ajax({
+                url: '/login',
+                type : 'POST',
+                dataType: 'json',
+                data: {
+                    "uname":document.getElementById('uname').value,
+                    "psw":document.getElementById('psw').value
+                },
+                success: function (text) {
+                    //$('#token').html('Current Token: ' + text);
+                    console.log(text);
+                }
+            });
+        });
+    });
+</script>
 </body>
 </html>

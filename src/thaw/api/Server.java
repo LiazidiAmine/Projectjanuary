@@ -3,10 +3,15 @@ package thaw.api;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.auth.jwt.JWTAuth;
+import io.vertx.ext.auth.jwt.JWTOptions;
 import io.vertx.ext.web.Cookie;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.Session;
 import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.CookieHandler;
+import io.vertx.ext.web.handler.JWTAuthHandler;
+import io.vertx.ext.web.handler.RedirectAuthHandler;
 import io.vertx.ext.web.handler.SessionHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 import io.vertx.ext.web.handler.sockjs.BridgeOptions;
@@ -15,6 +20,7 @@ import io.vertx.ext.web.handler.sockjs.SockJSHandler;
 import io.vertx.ext.web.sstore.LocalSessionStore;
 import thaw.bots.BotsHandler;
 import thaw.chatroom.Message;
+import thaw.chatroom.User;
 import thaw.parser.*;
 
 import java.util.Objects;
@@ -31,41 +37,40 @@ public class Server extends AbstractVerticle {
 	@Override
 	public void start() throws Exception {
 		Router router = Router.router(vertx);
-
-		router.route().handler(CookieHandler.create());
-		router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx)));
 		
+		router.route().handler(CookieHandler.create());
+        router.route().handler(BodyHandler.create());
+        router.route().handler(SessionHandler.create(LocalSessionStore.create(vertx)));
+		
+		// Create a JWT Auth Provider
+	    JWTAuth jwt = JWTAuth.create(vertx, new JsonObject()
+	        .put("keyStore", new JsonObject()
+	            .put("type", "jceks")
+	            .put("path", "/home/amine/workspace/mini-vertx/src/thaw/api/keystore.jceks")
+	            .put("password", "secret")));
+	    
+	    router.route("/*").handler(ctx->{
+	    	String myToken = jwt.generateToken(new JsonObject(), new JWTOptions().setExpiresInMinutes(2));
+	    	String token = ctx.get
+	    });
+
+	    // protect the API
+	    router.route("/*").handler(RedirectAuthHandler.create(jwt, "/login.html"));
+	    
 		router.route("/home.html").handler(ctx -> {
-			Cookie ck = ctx.getCookie("user");
-			if(ck == null || ck.getValue() == null){
-				ctx.response().putHeader("location", "http://localhost:9997/login.html")
-					.sendFile(ApiMethods.PATH_SYSTEM_DIRECTORY + "/public/login.html");
-			} else{
+			String token0 = ctx.get
 				ctx.response().putHeader("content text", "text/html")
 					.sendFile(ApiMethods.PATH_SYSTEM_DIRECTORY + "/public/home.html");
-			}
 		});
 		
 		router.route("/").handler(ctx -> {
-			Cookie ck = ctx.getCookie("user");
-			if(ck == null || ck.getValue() == null){
-				ctx.response().putHeader("content text", "text/html")
-					.sendFile(ApiMethods.PATH_SYSTEM_DIRECTORY + "/public/login.html");
-			} else{
 				ctx.response().putHeader("content text", "text/html")
 					.sendFile(ApiMethods.PATH_SYSTEM_DIRECTORY + "/public/home.html");
-			}
 		});
 		
 		router.route("/login.html").handler(ctx -> {
-			Cookie ck = ctx.getCookie("user");
-			if(ck == null || ck.getValue() == null || ck.getValue() == ""){
 				ctx.response().putHeader("content text", "text/html")
 					.sendFile(ApiMethods.PATH_SYSTEM_DIRECTORY + "/public/login.html");
-			} else{
-				ctx.response().putHeader("content text", "text/html")
-					.sendFile(ApiMethods.PATH_SYSTEM_DIRECTORY + "/public/home.html");
-			}
 		});
 		
 		router.route("/*").handler(BodyHandler.create());
@@ -80,7 +85,21 @@ public class Server extends AbstractVerticle {
 		SockJSHandler ebHandler = SockJSHandler.create(vertx).bridge(opts);
 
 		router.route("/eventbus/*").handler(ebHandler);
-		router.post("/login").handler(api::login);
+		router.post("/login").handler(ctx->{
+			final String username = Objects.requireNonNull(ctx.request().getParam("uname"));
+			final String psw = Objects.requireNonNull(ctx.request().getParam("psw"));
+			String token = jwt.generateToken(new JsonObject().put("sub",username), new JWTOptions().setExpiresInMinutes(5));
+			Session session = ctx.session();
+			if(api.isRegistred(username).isEmpty()){
+				api.register(username, psw);
+			}else{
+				if(api.validUser(new User(username, psw))){
+					session.put("user", username);
+					ctx.response().setStatusCode(204).end("User authenticated");
+					break;
+				}
+			}
+		});
 		router.post("/deleteCh").handler(api::deleteChannel);
 		router.get("/channels").handler(api::getChannels);
 		router.get("/messages/:channel").handler(api::getMessages);
