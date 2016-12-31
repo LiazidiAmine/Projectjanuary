@@ -15,6 +15,10 @@ import io.vertx.ext.web.sstore.LocalSessionStore;
 import thaw.bots.BotsHandler;
 import thaw.chatroom.Message;
 import thaw.parser.*;
+import io.vertx.core.http.HttpServerOptions;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Future;
+import io.vertx.core.net.JksOptions;
 
 import java.util.Objects;
 
@@ -28,7 +32,7 @@ public class Server extends AbstractVerticle {
 	ObjectMapper mapper = new ObjectMapper();
 
 	@Override
-	public void start() throws Exception {
+	public void start(Future<Void> fut) throws Exception {
 		Router router = Router.router(vertx);
 		
 		router.route().handler(BodyHandler.create().setBodyLimit(5));
@@ -122,6 +126,19 @@ public class Server extends AbstractVerticle {
 		// Start the web server and tell it to use the router to handle
 		// requests.
 		vertx.createHttpServer().requestHandler(router::accept).listen(9997);
+		
+		vertx.executeBlocking(future -> {
+			HttpServerOptions httpOpts = new HttpServerOptions();
+				httpOpts.setKeyStoreOptions(new JksOptions().setPath("./config/webserver/.keystore.jks").setPassword("amineliazidi"));
+				httpOpts.setSsl(true);
+				future.complete(httpOpts);
+		}, (AsyncResult<HttpServerOptions> result) -> {
+            if (!result.failed()) {
+                vertx.createHttpServer(result.result()).requestHandler(router::accept).listen(9997);
+                System.out.println("SSL Web server listening on port :" + 9997);
+                fut.complete();
+            }
+        });
 
 		EventBus eb = vertx.eventBus();
 
